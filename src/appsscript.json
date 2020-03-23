@@ -14,12 +14,12 @@
     "companyUrl": "http://www.newpathconsulting.com",
     "addonUrl": "http://www.newpathconsulting.com/warm",
     "supportUrl": "https://www.newpathconsulting.com/contact-us.html",
-    "description": "v1.96 - The Wild Apricot Reports Manager (aka WARM) is NewPath\u0027s custom reporting solution for Wild Apricot administrators who want an increased level of reporting flexibility and analytical power.",
+    "description": "v1.97 - The Wild Apricot Reports Manager (aka WARM) is NewPath\u0027s custom reporting solution for Wild Apricot administrators who want an increased level of reporting flexibility and analytical power.",
     "sources": ["WILD_APRICOT"],
     "templates": {
       "default": "1AvG9S97XRA7fE9QIaVAtMZ3QQG511wq6"
     },
-    "shortDescription": "v1.96 - Create custom reports and visualizations with your Wild Apricot site or network of sites.",
+    "shortDescription": "v1.97 - Create custom reports and visualizations with your Wild Apricot site or network of sites.",
     "authType": ["KEY"],
     "feeType": ["FREE_TRIAL"],
     "privacyPolicyUrl": "https://www.newpathconsulting.com/privacy.html",

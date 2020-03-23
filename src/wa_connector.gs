@@ -382,7 +382,6 @@ wa_connector.getSchema = function(request) {
       var schemaItem = schema[i];
       if ("semanticGroup" in schemaItem.semantics && schemaItem.semantics.semanticGroup === "CURRENCY") {
         schemaItem.semantics.semanticType = "CURRENCY_" + currencyCode.toUpperCase();
-        break;
       }
     }
   }
