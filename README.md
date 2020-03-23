@@ -15,7 +15,7 @@ The code is maintained by [NewPath Consulting](https://www.newpathconsulting.com
 This community data connector is written in JavaScript and supports the following Wild Apricot data objects.
 
 * [Account](https://gethelp.wildapricot.com/en/articles/506-accounts-admin-api-call)
-* [Contacts](https://gethelp.wildapricot.com/en/articles/502-contacts-admin-api-call0
+* [Contacts](https://gethelp.wildapricot.com/en/articles/502-contacts-admin-api-call)
 * [Contact custom fields](https://gethelp.wildapricot.com/en/articles/503-contactfields-admin-api-call)
 * [Membership Levels](https://gethelp.wildapricot.com/en/articles/496-membershiplevels-admin-api-call)
 * [Events](https://gethelp.wildapricot.com/en/articles/499-events-admin-api-call)
