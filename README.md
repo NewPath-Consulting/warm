@@ -12,7 +12,7 @@ Data is fetched in real-time, securely using Wild Apricot's REST API.
 The code is maintained by [NewPath Consulting](https://www.newpathconsulting.com/warm).
 
 # Features
-This community data connector is written in JavaScript and supports the following API calls.
+This community data connector is written in JavaScript and supports the following Wild Apricot data objects.
 
 * Account
 * Contacts
@@ -20,6 +20,8 @@ This community data connector is written in JavaScript and supports the followin
 * Membership Levels
 * Events
 * Invoices
+* Payments
+* Sent emails
 * Auditlog
 
 # Installation
@@ -76,4 +78,4 @@ Dashboards can be customized flexibly according to a report writers requirements
 *  v1.1 September 10 2019 - added AccountID to every endpoint to track which Wild Apricot account (eg site) is providing the data. Updated connector manifest file to include the necessary data for publication into partner directory
 * v1.1.1 September 13 2019 - added a new config parameter collection screen with API key validation and step-by-step collection of config parameters depending on the end point being used
 * v1.2 September 27 2019 - removed auditlog/invoice config parameters in favour of GDS built in date filter control, added error handling to the getData() call, enabled API key override at the report level, added Account Name dimension to Account endpoint, added Auditlog timestamp to auditlog endpoint, modified schema for members end point to make sure balances are in CAD currency and are a METRIC rather than DIMENSION, Google Partner Connector submitted and approved
-* v2.0 February 14 2020 - added support for Contact custom fields, tuning paging for optimizing Contact records for databases > 2,000 contacts, including archived contacts only, including members only
+* v2.0 TBD - added support for accessing Contact custom fields, Sent Emails, Payments date. Added ability to access "pages" of records for Contacts and Contact custom fields, Events, Sent Emails, Invoices, Payments and AuditLog. Contacts can also have an API-level filter applied as well as return just a count of records rather than the full record set. On Contacts and Contact custom fields configuration supports returning only members or to include archived records.
