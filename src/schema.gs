@@ -962,5 +962,121 @@ var WASchema = {
         conceptType: "DIMENSION"
       }
     }
+  ],
+  payments: [
+    {
+      name: "Id",
+      label: "Payment ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Value",
+      label: "Payment Amount",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "METRIC",
+        semanticGroup: "CURRENCY",
+        semanticType: "CURRENCY_CAD"
+      }
+    },
+    {
+      name: "RefundedAmount",
+      label: "Refunded Amount",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "METRIC",
+        semanticGroup: "CURRENCY",
+        semanticType: "CURRENCY_CAD"
+      }
+    },
+    {
+      name: "ContactId",
+      label: "User ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "ContactName",
+      label: "Contact Name",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "CreatedDate",
+      label: "Payment Created Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_HOUR"
+      }
+    },
+    {
+      name: "UpdatedDate",
+      label: "Payment Updated Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_HOUR"
+      }
+    },
+    {
+      name: "TenderName",
+      label: "Tender",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Comment",
+      label: "Internal Comment",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "PublicComment",
+      label: "Public Comment",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "AllocatedValue",
+      label: "Allocated Value",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "METRIC",
+        semanticGroup: "CURRENCY",
+        semanticType: "CURRENCY_CAD"
+      }
+    },
+    {
+      name: "Type",
+      label: "Payment Type",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "DonationId",
+      label: "Donation ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    }
   ]
 };

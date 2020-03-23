@@ -106,6 +106,12 @@ wa_connector.getConfig = function(request) {
         .newOptionBuilder()
         .setLabel("Sent emails")
         .setValue("sentEmails")
+    )
+    .addOption(
+      config
+        .newOptionBuilder()
+        .setLabel("Payments")
+        .setValue("payments")
     );
 
   config
@@ -117,9 +123,10 @@ wa_connector.getConfig = function(request) {
   var shouldShowInvoicesFields = !isFirstRequest && configParams.resource === "invoices";
   var shouldShowAuditLogFields = !isFirstRequest && configParams.resource === "auditLog";
   var shouldShowSentEmailsFields = !isFirstRequest && configParams.resource === "sentEmails";
+  var shouldShowPaymentsFields = !isFirstRequest && configParams.resource === "payments";
   var shouldShowEventFields = !isFirstRequest && configParams.resource === "event";
   var shouldShowPageField =
-    shouldShowContactFields || shouldShowInvoicesFields || shouldShowAuditLogFields || shouldShowEventFields || shouldShowSentEmailsFields;
+    shouldShowContactFields || shouldShowInvoicesFields || shouldShowAuditLogFields || shouldShowEventFields || shouldShowSentEmailsFields || shouldShowPaymentsFields;
   var shouldShowFilterField = shouldShowContactFields || shouldShowEventFields || shouldShowSentEmailsFields;
   var shouldShowCountField = shouldShowContactFields;
 
@@ -260,7 +267,7 @@ wa_connector.getConfig = function(request) {
   var isPagingEmpty = isFirstRequest || configParams.Paging === undefined || configParams.Paging === null;
   var isDateRangeRequired =
     !isFirstRequest &&
-    (configParams.resource === "auditLog" || configParams.resource === "invoices" || configParams.resource === "contacts");
+    (configParams.resource === "auditLog" || configParams.resource === "invoices" || configParams.resource === "contacts" || configParams.resource === "payments");
   var canProceedToNextStep = !isApiKeyEmpty && !isResourceEmpty && (!shouldShowPageField || (shouldShowPageField && !isPagingEmpty));
 
   if (isDateRangeRequired) {
@@ -1265,6 +1272,88 @@ wa_connector.getData = function(request) {
 
       skip += Number(request.configParams.Paging);
       if (emails.Emails.length < Number(request.configParams.Paging)) {
+        break;
+      }
+    }
+  } else if (request.configParams.resource == "payments") {
+    var skip = 0,
+      count = 0;
+
+    while (true) {
+      var paymentsEndpoint =
+        API_PATHS.accounts + account.Id + "/payments?$skip=" + skip + "&$top=" + request.configParams.Paging+ "&StartDate=" +
+        request.dateRange.startDate +
+        "&EndDate=" +
+        request.dateRange.endDate;
+      var payments = _fetchAPI(paymentsEndpoint, token);
+
+      payments.Payments.forEach(function(payment) {
+        var row = [];
+        selectedDimensionsMetrics.forEach(function(field) {
+          switch (field.name) {
+            case "Id":
+              row.push(payment.Id);
+              break;
+            case "Value":
+              if (typeof payment.Value === "undefined") row.push(null);
+              else row.push(payment.Value);
+              break;
+            case "RefundedAmount":
+              if (typeof payment.RefundedAmount === "undefined") row.push(null);
+              else row.push(payment.RefundedAmount);
+              break;
+            case "ContactId":
+              var value = payment.Contact !== null ? payment.Contact.Id : null;
+              row.push(value);
+              break;
+            case "ContactName":
+              var value = payment.Contact !== null ? payment.Contact.Name : null;
+              row.push(value);
+              break;
+            case "ContactName":
+              var value = payment.Contact !== null ? payment.Contact.Name : null;
+              row.push(value);
+              break;
+            case "CreatedDate":
+              if (typeof payment.CreatedDate === "undefined") row.push(null);
+              else row.push(payment.CreatedDate);
+              break;
+            case "UpdatedDate":
+              if (typeof payment.UpdatedDate === "undefined") row.push(null);
+              else row.push(payment.UpdatedDate);
+              break;
+            case "TenderName":
+              var value = payment.Tender !== null ? payment.Tender.Name : null;
+              row.push(value);
+              break;
+            case "Comment":
+              if (typeof payment.Comment === "undefined") row.push(null);
+              else row.push(payment.Comment);
+              break;
+            case "PublicComment":
+              if (typeof payment.PublicComment === "undefined") row.push(null);
+              else row.push(payment.PublicComment);
+              break;
+            case "AllocatedValue":
+              if (typeof payment.AllocatedValue === "undefined") row.push(null);
+              else row.push(payment.AllocatedValue);
+              break;
+            case "Type":
+              if (typeof payment.Type === "undefined") row.push(null);
+              else row.push(payment.Type);
+              break;
+            case "DonationId":
+              var value = payment.Donation !== null ? payment.Donation.Id : null;
+              row.push(value);
+              break;
+            default:
+          }
+        });
+        rows.push({ values: row });
+      });
+
+      skip += Number(request.configParams.Paging);
+      if (payments.Payments.length < Number(request.configParams.Paging)) {
         break;
       }
     }
