@@ -1,6 +1,6 @@
 // ------------------------------------------------------------------------------------------------------------------
 // Google Data Studio Community Data Connector for Wild Apricot
-// Copyright (c) 2018-19 NewPath Consulting
+// Copyright (c) 2018-20 NewPath Consulting Inc.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -20,23 +20,22 @@
 // Further developed and restructured by Dennis Yoseph Zvigelsky (https://github.com/dzvigelsky) for NewPath Consulting Inc.
 // Contact NewPath Consulting for support at https://www.newpathconsulting.com
 
-// Version 1.0
-
+// Version 2.0
 
 // Google Connector Functions, called and logged
 
 function getConfig(request) {
-  return wa_connector.stackDriverLogging('getConfig', request);
+  return wa_connector.stackDriverLogging("getConfig", request);
 }
 
 function getSchema(request) {
-  return wa_connector.stackDriverLogging('getSchema', request);
+  return wa_connector.stackDriverLogging("getSchema", request);
 }
 
 function getData(request) {
-  return wa_connector.stackDriverLogging('getData', request);
+  return wa_connector.stackDriverLogging("getData", request);
 }
 
 function getAuthType(request) {
-  return wa_connector.stackDriverLogging('getAuthType', request);
+  return wa_connector.stackDriverLogging("getAuthType", request);
 }

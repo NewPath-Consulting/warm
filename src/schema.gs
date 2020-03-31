@@ -1,6 +1,6 @@
 // ------------------------------------------------------------------------------------------------------------------
 // Google Data Studio Community Data Connector for Wild Apricot
-// Copyright (c) 2018-19 NewPath Consulting
+// Copyright (c) 2018-20 NewPath Consulting Inc.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -21,11 +21,10 @@
 // Contact NewPath Consulting for support at https://www.newpathconsulting.com
 
 var WASchema = {
-  // Account
   account: [
     {
       name: "Id",
-      label: "Account Number",
+      label: "Account ID",
       dataType: "NUMBER",
       semantics: {
         conceptType: "DIMENSION"
@@ -40,7 +39,7 @@ var WASchema = {
         semanticType: "URL"
       }
     },
-     {
+    {
       name: "Name",
       label: "Account Name",
       dataType: "STRING",
@@ -49,15 +48,23 @@ var WASchema = {
       }
     }
   ],
-  // Members
-  members: [
-  
+  // previously members
+  contacts: [
     {
       name: "MemberId",
-      label: "Member Id",
+      label: "User Id",
       dataType: "NUMBER",
       semantics: {
         conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Groupparticipation",
+      label: "Group Participation",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "TEXT"
       }
     },
     {
@@ -163,7 +170,7 @@ var WASchema = {
         semanticType: "BOOLEAN"
       }
     },
-    { // define more schema depending on usage
+    {
       name: "Active",
       label: "IsActiveMember",
       dataType: "BOOLEAN",
@@ -209,8 +216,8 @@ var WASchema = {
       }
     },
     {
-      name: "IsDonor", // corresponds to code in getData
-      label: "Donor", // this is how it appears in GDS
+      name: "IsDonor",
+      label: "Donor",
       dataType: "BOOLEAN",
       semantics: {
         conceptType: "DIMENSION",
@@ -272,7 +279,7 @@ var WASchema = {
       }
     },
     {
-      name: "RecievingEMailsDisabled",
+      name: "ReceivingEmailsDisabled",
       label: "Receiving emails disabled",
       dataType: "BOOLEAN",
       semantics: {
@@ -360,10 +367,77 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION"
       }
+    },
+    {
+      name: "MemberSince",
+      label: "Member since",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "YEAR_MONTH_DAY_HOUR"
+      }
+    },
+    {
+      name: "RenewalDue",
+      label: "Renewal due",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "YEAR_MONTH_DAY_HOUR"
+      }
+    },
+    {
+      name: "RenewalDateLastChanged",
+      label: "Renewal date last changed",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "YEAR_MONTH_DAY_HOUR"
+      }
+    },
+    {
+      name: "LevelLastChanged",
+      label: "Level last changed",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "YEAR_MONTH_DAY_HOUR"
+      }
+    },
+    {
+      name: "AccessToProfileByOthers",
+      label: "Access to profile by others",
+      dataType: "BOOLEAN",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "BOOLEAN"
+      }
+    },
+    {
+      name: "MemberBundleIdOrEmail",
+      label: "Member bundle id or email",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "MemberRole",
+      label: "Member role",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Count",
+      label: "Count",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
     }
   ],
-
-  // Membership Levels Endpoint
   membershipLevels: [
     {
       name: "AccountIdMain1",
@@ -408,10 +482,17 @@ var WASchema = {
         conceptType: "DIMENSION",
         semanticType: "TEXT"
       }
+    },
+    {
+      name: "MembershipType",
+      label: "Membership Type",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "TEXT"
+      }
     }
   ],
-
-  // Event
   event: [
     {
       name: "AccountIdMain2",
@@ -498,7 +579,6 @@ var WASchema = {
       }
     }
   ],
-  // AuditLog
   auditLog: [
     {
       name: "AuditLogId",
@@ -510,7 +590,7 @@ var WASchema = {
     },
     {
       name: "AccountIdMain3",
-      label: "Account Id",
+      label: "Account ID",
       dataType: "NUMBER",
       semantics: {
         conceptType: "DIMENSION"
@@ -528,7 +608,7 @@ var WASchema = {
     },
     {
       name: "ContactId",
-      label: "Contact ID",
+      label: "User ID",
       dataType: "NUMBER",
       semantics: {
         conceptType: "DIMENSION"
@@ -578,11 +658,10 @@ var WASchema = {
       }
     }
   ],
-  // INVOICES
   invoices: [
     {
       name: "AccountIdMain4",
-      label: "Account Id",
+      label: "Account ID",
       dataType: "NUMBER",
       semantics: {
         conceptType: "DIMENSION"
@@ -622,12 +701,11 @@ var WASchema = {
         conceptType: "METRIC",
         semanticGroup: "CURRENCY",
         semanticType: "CURRENCY_CAD"
-
       }
     },
     {
       name: "ContactId",
-      label: "Contact Id",
+      label: "User Id",
       dataType: "NUMBER",
       semantics: {
         conceptType: "DIMENSION"
@@ -683,12 +761,318 @@ var WASchema = {
         conceptType: "METRIC",
         semanticGroup: "CURRENCY",
         semanticType: "CURRENCY_CAD"
-
       }
     },
     {
       name: "EventId",
       label: "Event ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    }
+  ],
+  sentEmails: [
+    {
+      name: "Id",
+      label: "Email ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Url",
+      label: "Url",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "URL"
+      }
+    },
+    {
+      name: "SentDate",
+      label: "Sent date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_HOUR"
+      }
+    },
+    {
+      name: "Subject",
+      label: "Subject",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "ReplyToName",
+      label: "Replier name",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "ReplyToAddress",
+      label: "Replier email address",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "EmailType",
+      label: "Type",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "IsTrackingAllowed",
+      label: "Is tracking allowed",
+      dataType: "BOOLEAN",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "BOOLEAN"
+      }
+    },
+    {
+      name: "IsCopySentToAdmins",
+      label: "Is copy sent to admin",
+      dataType: "BOOLEAN",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "BOOLEAN"
+      }
+    },
+    {
+      name: "SenderId",
+      label: "Sender ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "SenderName",
+      label: "Sender name",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "SendingType",
+      label: "Sending type",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "RecipientCount",
+      label: "Number of recipients",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "ReadCount",
+      label: "Times read",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "UniqueLinkClickCount",
+      label: "Number of unique links",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "SuccessfullySentCount",
+      label: "Number of succesful sends",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "RecipientsThatClickedAnyLinkCount",
+      label: "Recipients that clicked a link",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "FailedCount",
+      label: "Number of failed sends",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "InProgress",
+      label: "Is in progress",
+      dataType: "BOOLEAN",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "RecipientType",
+      label: "Recipient type",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "RecipientName",
+      label: "Recipient name",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "RecipientId",
+      label: "Recipient ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "RecipientEmail",
+      label: "Recipient email",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    }
+  ],
+  payments: [
+    {
+      name: "Id",
+      label: "Payment ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Value",
+      label: "Payment Amount",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "METRIC",
+        semanticGroup: "CURRENCY",
+        semanticType: "CURRENCY_CAD"
+      }
+    },
+    {
+      name: "RefundedAmount",
+      label: "Refunded Amount",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "METRIC",
+        semanticGroup: "CURRENCY",
+        semanticType: "CURRENCY_CAD"
+      }
+    },
+    {
+      name: "ContactId",
+      label: "User ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "ContactName",
+      label: "Contact Name",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "CreatedDate",
+      label: "Payment Created Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_HOUR"
+      }
+    },
+    {
+      name: "UpdatedDate",
+      label: "Payment Updated Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_HOUR"
+      }
+    },
+    {
+      name: "TenderName",
+      label: "Tender",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Comment",
+      label: "Internal Comment",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "PublicComment",
+      label: "Public Comment",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "AllocatedValue",
+      label: "Allocated Value",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "METRIC",
+        semanticGroup: "CURRENCY",
+        semanticType: "CURRENCY_CAD"
+      }
+    },
+    {
+      name: "Type",
+      label: "Payment Type",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "DonationId",
+      label: "Donation ID",
       dataType: "NUMBER",
       semantics: {
         conceptType: "DIMENSION"

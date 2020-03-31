@@ -1,0 +1,11 @@
+{
+  "name": "warm",
+  "version": "2.0.0",
+  "main": "src/Code.gs",
+  "repository": "https://github.com/asirota/warm.git",
+  "author": "NewPath Consulting",
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "^1.19.1"
+  }
+}
