@@ -654,7 +654,7 @@ wa_connector.getData = function(request) {
                 var lastU = undefined;
                 member.FieldValues.forEach(function(element) {
                   if (element.SystemCode == "LastUpdated") {
-                    lastU = element.Value;
+                    lastU = parseDateTime(element.Value);
                   }
                 });
                 row.push(lastU);
@@ -681,7 +681,7 @@ wa_connector.getData = function(request) {
                 var lastLD = "";
                 member.FieldValues.forEach(function(element) {
                   if (element.SystemCode == "LastLoginDate") {
-                    lastLD = element.Value;
+                    lastLD = parseDateTime(element.Value);
                   }
                 });
                 row.push(lastLD);
@@ -897,11 +897,11 @@ wa_connector.getData = function(request) {
               break;
             case "StartDate":
               if (typeof event.StartDate === "undefined") row.push(null);
-              else row.push(event.StartDate);
+              else row.push(parseDateTime(event.StartDate));
               break;
             case "EndDate":
               if (typeof event.EndDate === "undefined") row.push(null);
-              else row.push(event.EndDate);
+              else row.push(parseDateTime(event.EndDate));
               break;
             case "Location":
               if (typeof event.Location === "undefined") row.push(null);
@@ -980,7 +980,7 @@ wa_connector.getData = function(request) {
               break;
             case "Timestamp":
               if (typeof AuditItem.Contact === "undefined") row.push(null);
-              else row.push(AuditItem.Timestamp);
+              else row.push(parseDateTime(AuditItem.Timestamp));
               break;
             case "FirstName":
               if (typeof AuditItem.FirstName === "undefined") row.push(null);
@@ -1065,7 +1065,7 @@ wa_connector.getData = function(request) {
               break;
             case "CreatedDate":
               if (typeof invoice.CreatedDate === "undefined") row.push(null);
-              else row.push(invoice.CreatedDate);
+              else row.push(parseDateTime(invoice.CreatedDate));
               break;
             case "OrderType":
               row.push(invoice.OrderType);
@@ -1189,7 +1189,7 @@ wa_connector.getData = function(request) {
               break;
             case "SentDate":
               if (typeof email.SentDate === "undefined") row.push(null);
-              else row.push(email.SentDate);
+              else row.push(parseDateTime(email.SentDate));
               break;
             case "Subject":
               if (typeof email.Subject === "undefined") row.push(null);
@@ -1316,11 +1316,11 @@ wa_connector.getData = function(request) {
               break;
             case "CreatedDate":
               if (typeof payment.CreatedDate === "undefined") row.push(null);
-              else row.push(payment.CreatedDate);
+              else row.push(parseDateTime(payment.CreatedDate));
               break;
             case "UpdatedDate":
               if (typeof payment.UpdatedDate === "undefined") row.push(null);
-              else row.push(payment.UpdatedDate);
+              else row.push(parseDateTime(payment.UpdatedDate));
               break;
             case "TenderName":
               var value = payment.Tender !== null ? payment.Tender.Name : null;
@@ -1556,6 +1556,13 @@ function setCredentials(request) {
 
 function isAdminUser() {
   return true;
+}
+
+function parseDateTime(datetime) {
+  if (typeof datetime !== "string") {
+    return null;
+  }
+  return datetime.replace(/[-:T]/g, "");
 }
 
 ////////////////////////////////////////////////////////////////////////
