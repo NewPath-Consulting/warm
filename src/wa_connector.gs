@@ -126,7 +126,12 @@ wa_connector.getConfig = function(request) {
   var shouldShowPaymentsFields = !isFirstRequest && configParams.resource === "payments";
   var shouldShowEventFields = !isFirstRequest && configParams.resource === "event";
   var shouldShowPageField =
-    shouldShowContactFields || shouldShowInvoicesFields || shouldShowAuditLogFields || shouldShowEventFields || shouldShowSentEmailsFields || shouldShowPaymentsFields;
+    shouldShowContactFields ||
+    shouldShowInvoicesFields ||
+    shouldShowAuditLogFields ||
+    shouldShowEventFields ||
+    shouldShowSentEmailsFields ||
+    shouldShowPaymentsFields;
   var shouldShowFilterField = shouldShowContactFields || shouldShowEventFields || shouldShowSentEmailsFields;
   var shouldShowCountField = shouldShowContactFields;
 
@@ -267,7 +272,10 @@ wa_connector.getConfig = function(request) {
   var isPagingEmpty = isFirstRequest || configParams.Paging === undefined || configParams.Paging === null;
   var isDateRangeRequired =
     !isFirstRequest &&
-    (configParams.resource === "auditLog" || configParams.resource === "invoices" || configParams.resource === "contacts" || configParams.resource === "payments");
+    (configParams.resource === "auditLog" ||
+      configParams.resource === "invoices" ||
+      configParams.resource === "contacts" ||
+      configParams.resource === "payments");
   var canProceedToNextStep = !isApiKeyEmpty && !isResourceEmpty && (!shouldShowPageField || (shouldShowPageField && !isPagingEmpty));
 
   if (isDateRangeRequired) {
@@ -672,7 +680,7 @@ wa_connector.getData = function(request) {
                 var creationD = "";
                 member.FieldValues.forEach(function(element) {
                   if (element.SystemCode == "CreationDate") {
-                    creationD = element.Value;
+                    creationD = parseDateTime(element.Value);
                   }
                 });
                 row.push(creationD);
@@ -736,7 +744,7 @@ wa_connector.getData = function(request) {
                 var value = "";
                 for (var i = 0; i < member.FieldValues.length; i++) {
                   if (member.FieldValues[i].SystemCode === "MemberSince") {
-                    value = member.FieldValues[i].Value;
+                    value = parseDateTime(member.FieldValues[i].Value);
                     break;
                   }
                 }
@@ -747,7 +755,7 @@ wa_connector.getData = function(request) {
                 var value = "";
                 for (var i = 0; i < member.FieldValues.length; i++) {
                   if (member.FieldValues[i].SystemCode === "RenewalDue") {
-                    value = member.FieldValues[i].Value;
+                    value = parseDateTime(member.FieldValues[i].Value);
                     break;
                   }
                 }
@@ -758,7 +766,7 @@ wa_connector.getData = function(request) {
                 var value = "";
                 for (var i = 0; i < member.FieldValues.length; i++) {
                   if (member.FieldValues[i].SystemCode === "RenewalDateLastChanged") {
-                    value = member.FieldValues[i].Value;
+                    value = parseDateTime(member.FieldValues[i].Value);
                     break;
                   }
                 }
@@ -769,7 +777,7 @@ wa_connector.getData = function(request) {
                 var value = "";
                 for (var i = 0; i < member.FieldValues.length; i++) {
                   if (member.FieldValues[i].SystemCode === "LevelLastChanged") {
-                    value = member.FieldValues[i].Value;
+                    value = parseDateTime(member.FieldValues[i].Value);
                     break;
                   }
                 }
@@ -1281,7 +1289,13 @@ wa_connector.getData = function(request) {
 
     while (true) {
       var paymentsEndpoint =
-        API_PATHS.accounts + account.Id + "/payments?$skip=" + skip + "&$top=" + request.configParams.Paging+ "&StartDate=" +
+        API_PATHS.accounts +
+        account.Id +
+        "/payments?$skip=" +
+        skip +
+        "&$top=" +
+        request.configParams.Paging +
+        "&StartDate=" +
         request.dateRange.startDate +
         "&EndDate=" +
         request.dateRange.endDate;
@@ -1365,11 +1379,6 @@ wa_connector.getData = function(request) {
   };
 };
 
-// Format date to meet GDS requirement.
-function format_date(d_in) {
-  return d_in.substr(0, d_in.indexOf("T"));
-}
-
 // Function to account for nested structure in Wild Apricot JSON response format.
 function map_val(ft_in, member_in, idx) {
   // Base case, function in development.
@@ -1413,7 +1422,7 @@ function map_val(ft_in, member_in, idx) {
     case "RadioButtons":
       return member_in.FieldValues[idx].Value.Label ? member_in.FieldValues[idx].Value.Label : null;
     case "Date":
-      return format_date(member_in.FieldValues[idx].Value);
+      return parseDateTime(member_in.FieldValues[idx].Value);
     default:
       // Text, RulesAndTerms(Boolean), MultilineText, MultipleChoiceWithExtraCharge, ExtraChargeCalculations
       if (typeof member_in.FieldValues[idx].Value === "undefined") {
@@ -1562,7 +1571,17 @@ function parseDateTime(datetime) {
   if (typeof datetime !== "string") {
     return null;
   }
-  return datetime.replace(/[-:T]/g, "");
+  var regex = new RegExp("([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})");
+  var result = regex.exec(datetime);
+  var parsedDate = null;
+
+  if (Array.isArray(result)) {
+    parsedDate = "";
+    for (var index = 1; index < result.length; index++) {
+      parsedDate += result[index];
+    }
+  }
+  return parsedDate;
 }
 
 ////////////////////////////////////////////////////////////////////////
