@@ -965,6 +965,14 @@ var WASchema = {
   ],
   payments: [
     {
+      name: "AccountIdMain",
+      label: "Account Id",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
       name: "Id",
       label: "Payment ID",
       dataType: "NUMBER",

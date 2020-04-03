@@ -126,7 +126,12 @@ wa_connector.getConfig = function(request) {
   var shouldShowPaymentsFields = !isFirstRequest && configParams.resource === "payments";
   var shouldShowEventFields = !isFirstRequest && configParams.resource === "event";
   var shouldShowPageField =
-    shouldShowContactFields || shouldShowInvoicesFields || shouldShowAuditLogFields || shouldShowEventFields || shouldShowSentEmailsFields || shouldShowPaymentsFields;
+    shouldShowContactFields ||
+    shouldShowInvoicesFields ||
+    shouldShowAuditLogFields ||
+    shouldShowEventFields ||
+    shouldShowSentEmailsFields ||
+    shouldShowPaymentsFields;
   var shouldShowFilterField = shouldShowContactFields || shouldShowEventFields || shouldShowSentEmailsFields;
   var shouldShowCountField = shouldShowContactFields;
 
@@ -267,7 +272,10 @@ wa_connector.getConfig = function(request) {
   var isPagingEmpty = isFirstRequest || configParams.Paging === undefined || configParams.Paging === null;
   var isDateRangeRequired =
     !isFirstRequest &&
-    (configParams.resource === "auditLog" || configParams.resource === "invoices" || configParams.resource === "contacts" || configParams.resource === "payments");
+    (configParams.resource === "auditLog" ||
+      configParams.resource === "invoices" ||
+      configParams.resource === "contacts" ||
+      configParams.resource === "payments");
   var canProceedToNextStep = !isApiKeyEmpty && !isResourceEmpty && (!shouldShowPageField || (shouldShowPageField && !isPagingEmpty));
 
   if (isDateRangeRequired) {
@@ -1276,12 +1284,20 @@ wa_connector.getData = function(request) {
       }
     }
   } else if (request.configParams.resource == "payments") {
+    var accountsEndpoint = API_PATHS.accounts + account.Id;
+    var accounts = _fetchAPI(accountsEndpoint, token);
     var skip = 0,
       count = 0;
 
     while (true) {
       var paymentsEndpoint =
-        API_PATHS.accounts + account.Id + "/payments?$skip=" + skip + "&$top=" + request.configParams.Paging+ "&StartDate=" +
+        API_PATHS.accounts +
+        account.Id +
+        "/payments?$skip=" +
+        skip +
+        "&$top=" +
+        request.configParams.Paging +
+        "&StartDate=" +
         request.dateRange.startDate +
         "&EndDate=" +
         request.dateRange.endDate;
@@ -1291,6 +1307,9 @@ wa_connector.getData = function(request) {
         var row = [];
         selectedDimensionsMetrics.forEach(function(field) {
           switch (field.name) {
+            case "AccountIdMain":
+              row.push(accounts.Id);
+              break;
             case "Id":
               row.push(payment.Id);
               break;
