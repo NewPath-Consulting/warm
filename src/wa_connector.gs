@@ -735,7 +735,7 @@ wa_connector.getData = function(request) {
                 var lastU = undefined;
                 member.FieldValues.forEach(function(element) {
                   if (element.SystemCode == "LastUpdated") {
-                    lastU = element.Value;
+                    lastU = parseDateTime(element.Value);
                   }
                 });
                 row.push(lastU);
@@ -753,7 +753,7 @@ wa_connector.getData = function(request) {
                 var creationD = "";
                 member.FieldValues.forEach(function(element) {
                   if (element.SystemCode == "CreationDate") {
-                    creationD = element.Value;
+                    creationD = parseDateTime(element.Value);
                   }
                 });
                 row.push(creationD);
@@ -762,7 +762,7 @@ wa_connector.getData = function(request) {
                 var lastLD = "";
                 member.FieldValues.forEach(function(element) {
                   if (element.SystemCode == "LastLoginDate") {
-                    lastLD = element.Value;
+                    lastLD = parseDateTime(element.Value);
                   }
                 });
                 row.push(lastLD);
@@ -817,7 +817,7 @@ wa_connector.getData = function(request) {
                 var value = "";
                 for (var i = 0; i < member.FieldValues.length; i++) {
                   if (member.FieldValues[i].SystemCode === "MemberSince") {
-                    value = member.FieldValues[i].Value;
+                    value = parseDateTime(member.FieldValues[i].Value);
                     break;
                   }
                 }
@@ -828,7 +828,7 @@ wa_connector.getData = function(request) {
                 var value = "";
                 for (var i = 0; i < member.FieldValues.length; i++) {
                   if (member.FieldValues[i].SystemCode === "RenewalDue") {
-                    value = member.FieldValues[i].Value;
+                    value = parseDateTime(member.FieldValues[i].Value);
                     break;
                   }
                 }
@@ -839,7 +839,7 @@ wa_connector.getData = function(request) {
                 var value = "";
                 for (var i = 0; i < member.FieldValues.length; i++) {
                   if (member.FieldValues[i].SystemCode === "RenewalDateLastChanged") {
-                    value = member.FieldValues[i].Value;
+                    value = parseDateTime(member.FieldValues[i].Value);
                     break;
                   }
                 }
@@ -850,7 +850,7 @@ wa_connector.getData = function(request) {
                 var value = "";
                 for (var i = 0; i < member.FieldValues.length; i++) {
                   if (member.FieldValues[i].SystemCode === "LevelLastChanged") {
-                    value = member.FieldValues[i].Value;
+                    value = parseDateTime(member.FieldValues[i].Value);
                     break;
                   }
                 }
@@ -978,11 +978,11 @@ wa_connector.getData = function(request) {
               break;
             case "StartDate":
               if (typeof event.StartDate === "undefined") row.push(null);
-              else row.push(event.StartDate);
+              else row.push(parseDateTime(event.StartDate));
               break;
             case "EndDate":
               if (typeof event.EndDate === "undefined") row.push(null);
-              else row.push(event.EndDate);
+              else row.push(parseDateTime(event.EndDate));
               break;
             case "Location":
               if (typeof event.Location === "undefined") row.push(null);
@@ -1061,7 +1061,7 @@ wa_connector.getData = function(request) {
               break;
             case "Timestamp":
               if (typeof AuditItem.Contact === "undefined") row.push(null);
-              else row.push(AuditItem.Timestamp);
+              else row.push(parseDateTime(AuditItem.Timestamp));
               break;
             case "FirstName":
               if (typeof AuditItem.FirstName === "undefined") row.push(null);
@@ -1146,7 +1146,7 @@ wa_connector.getData = function(request) {
               break;
             case "CreatedDate":
               if (typeof invoice.CreatedDate === "undefined") row.push(null);
-              else row.push(invoice.CreatedDate);
+              else row.push(parseDateTime(invoice.CreatedDate));
               break;
             case "OrderType":
               row.push(invoice.OrderType);
@@ -1270,7 +1270,7 @@ wa_connector.getData = function(request) {
               break;
             case "SentDate":
               if (typeof email.SentDate === "undefined") row.push(null);
-              else row.push(email.SentDate);
+              else row.push(parseDateTime(email.SentDate));
               break;
             case "Subject":
               if (typeof email.Subject === "undefined") row.push(null);
@@ -1357,6 +1357,8 @@ wa_connector.getData = function(request) {
       }
     }
   } else if (request.configParams.resource == "payments") {
+    var accountsEndpoint = API_PATHS.accounts + account.Id;
+    var accounts = _fetchAPI(accountsEndpoint, token);
     var skip = 0,
       count = 0;
 
@@ -1378,6 +1380,9 @@ wa_connector.getData = function(request) {
         var row = [];
         selectedDimensionsMetrics.forEach(function(field) {
           switch (field.name) {
+            case "AccountIdMain":
+              row.push(accounts.Id);
+              break;
             case "Id":
               row.push(payment.Id);
               break;
@@ -1403,11 +1408,11 @@ wa_connector.getData = function(request) {
               break;
             case "CreatedDate":
               if (typeof payment.CreatedDate === "undefined") row.push(null);
-              else row.push(payment.CreatedDate);
+              else row.push(parseDateTime(payment.CreatedDate));
               break;
             case "UpdatedDate":
               if (typeof payment.UpdatedDate === "undefined") row.push(null);
-              else row.push(payment.UpdatedDate);
+              else row.push(parseDateTime(payment.UpdatedDate));
               break;
             case "TenderName":
               var value = payment.Tender !== null ? payment.Tender.Name : null;
@@ -1549,11 +1554,6 @@ wa_connector.getData = function(request) {
   };
 };
 
-// Format date to meet GDS requirement.
-function format_date(d_in) {
-  return d_in.substr(0, d_in.indexOf("T"));
-}
-
 // Function to account for nested structure in Wild Apricot JSON response format.
 function map_val(ft_in, member_in, idx) {
   // Base case, function in development.
@@ -1597,7 +1597,7 @@ function map_val(ft_in, member_in, idx) {
     case "RadioButtons":
       return member_in.FieldValues[idx].Value.Label ? member_in.FieldValues[idx].Value.Label : null;
     case "Date":
-      return format_date(member_in.FieldValues[idx].Value);
+      return parseDateTime(member_in.FieldValues[idx].Value);
     default:
       // Text, RulesAndTerms(Boolean), MultilineText, MultipleChoiceWithExtraCharge, ExtraChargeCalculations
       if (typeof member_in.FieldValues[idx].Value === "undefined") {
@@ -1737,6 +1737,23 @@ function setCredentials(request) {
 
 function isAdminUser() {
   return true;
+}
+
+function parseDateTime(datetime) {
+  if (typeof datetime !== "string") {
+    return null;
+  }
+  var regex = new RegExp("([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})");
+  var result = regex.exec(datetime);
+  var parsedDate = null;
+
+  if (Array.isArray(result)) {
+    parsedDate = "";
+    for (var index = 1; index < result.length; index++) {
+      parsedDate += result[index];
+    }
+  }
+  return parsedDate;
 }
 
 ////////////////////////////////////////////////////////////////////////
