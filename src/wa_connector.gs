@@ -92,6 +92,12 @@ wa_connector.getConfig = function(request) {
     .addOption(
       config
         .newOptionBuilder()
+        .setLabel("Event registrations")
+        .setValue("eventRegistrations")
+    )
+    .addOption(
+      config
+        .newOptionBuilder()
         .setLabel("AuditLog")
         .setValue("auditLog")
     )
@@ -112,12 +118,6 @@ wa_connector.getConfig = function(request) {
         .newOptionBuilder()
         .setLabel("Payments")
         .setValue("payments")
-    )
-    .addOption(
-      config
-        .newOptionBuilder()
-        .setLabel("Event registrations")
-        .setValue("eventRegistrations")
     );
 
   config
