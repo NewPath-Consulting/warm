@@ -291,6 +291,12 @@ wa_connector.getConfig = function(request) {
           .newOptionBuilder()
           .setLabel("Event ID")
           .setValue("eventRegistrationEventId")
+      )
+      .addOption(
+        config
+          .newOptionBuilder()
+          .setLabel("Event Registration ID")
+          .setValue("eventRegistrationEventRegistrationId")
       );
 
     config
@@ -303,8 +309,13 @@ wa_connector.getConfig = function(request) {
 
     if (!isEventRegistrationTypeEmpty) {
       var isUserId = configParams.eventRegistrationType === "eventRegistrationUserId";
-      var eventRegistrationSearchName = isUserId ? "User ID" : "Event ID";
-      var eventRegistrationSearchHelpText = isUserId ? "A comma-delimited list of User ID's to search by" : "An Event ID to search by";
+      var isEventId = configParams.eventRegistrationType === "eventRegistrationEventId";
+      var eventRegistrationSearchName = isUserId ? "User ID" : isEventId ? "Event ID" : "Event Registration ID";
+      var eventRegistrationSearchHelpText = isUserId
+        ? "A User ID to search by"
+        : isEventId
+        ? "An Event ID to search by"
+        : "A comma-delimited list of Event Registration ID's to search by";
 
       config
         .newTextInput()
@@ -323,7 +334,9 @@ wa_connector.getConfig = function(request) {
         .setId("includeFormDetails")
         .setName("Include registration form details")
         .setAllowOverride(true)
-        .setHelpText("If checked, registration form details will be included in the report.");
+        .setHelpText(
+          "If checked, registration form details will be included in the report. If unchecked, these fields will still be present in the report but attempting to access them will result in an error."
+        );
 
       config
         .newCheckbox()
@@ -1460,6 +1473,8 @@ wa_connector.getData = function(request) {
       eventRegistrationsEndpoint += "contactId=" + searchId;
     } else if (searchType === "eventRegistrationEventId") {
       eventRegistrationsEndpoint += "eventId=" + searchId;
+    } else if (searchType === "eventRegistrationEventRegistrationId") {
+      eventRegistrationsEndpoint += "$filter=id in [" + searchId + "]";
     }
 
     eventRegistrationsEndpoint +=
