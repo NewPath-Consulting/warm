@@ -1453,16 +1453,11 @@ wa_connector.getData = function(request) {
     var shouldIncludeFormDetails = Boolean(request.configParams.includeFormDetails) === true;
     var shouldIncludeWaitlist = Boolean(request.configParams.includeWaitlist) === true;
     var searchId = request.configParams.eventRegistrationSearch.toString().trim();
-    var isSearchIdSingular = searchId.indexOf(",") === -1;
     var searchType = request.configParams.eventRegistrationType;
     var eventRegistrationsEndpoint = API_PATHS.accounts + account.Id + "/eventregistrations?";
 
     if (searchType === "eventRegistrationUserId") {
-      if (isSearchIdSingular) {
-        eventRegistrationsEndpoint += "contactId=" + searchId;
-      } else {
-        eventRegistrationsEndpoint += "$filter=id in [" + searchId + "]";
-      }
+      eventRegistrationsEndpoint += "contactId=" + searchId;
     } else if (searchType === "eventRegistrationEventId") {
       eventRegistrationsEndpoint += "eventId=" + searchId;
     }
@@ -1484,11 +1479,11 @@ wa_connector.getData = function(request) {
             break;
           case "StartDate":
             if (typeof eventRegistration.Event.StartDate === "undefined") row.push(null);
-            else row.push(eventRegistration.Event.StartDate);
+            else row.push(parseDateTime(eventRegistration.Event.StartDate));
             break;
           case "EndDate":
             if (typeof eventRegistration.Event.EndDate === "undefined") row.push(null);
-            else row.push(eventRegistration.Event.EndDate);
+            else row.push(parseDateTime(eventRegistration.Event.EndDate));
             break;
           case "Location":
             row.push(eventRegistration.Event.Location);
@@ -1521,7 +1516,7 @@ wa_connector.getData = function(request) {
           case "RegistrationDate":
             if (shouldIncludeFormDetails) {
               if (typeof eventRegistration.RegistrationDate === "undefined") row.push(null);
-              else row.push(eventRegistration.RegistrationDate);
+              else row.push(parseDateTime(eventRegistration.RegistrationDate));
             }
             break;
           case "Memo":
