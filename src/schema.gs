@@ -1149,22 +1149,6 @@ var WASchema = {
       }
     },
     {
-      name: "NumberOfGuests",
-      label: "Number of Guests Registered",
-      dataType: "NUMBER",
-      semantics: {
-        conceptType: "DIMENSION"
-      }
-    },
-    {
-      name: "NumberOfCheckIns",
-      label: "Number of Guests Checked In",
-      dataType: "NUMBER",
-      semantics: {
-        conceptType: "DIMENSION"
-      }
-    },
-    {
       name: "Organization",
       label: "Organization",
       dataType: "STRING",
