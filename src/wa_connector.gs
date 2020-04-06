@@ -112,6 +112,12 @@ wa_connector.getConfig = function(request) {
         .newOptionBuilder()
         .setLabel("Payments")
         .setValue("payments")
+    )
+    .addOption(
+      config
+        .newOptionBuilder()
+        .setLabel("Event registrations")
+        .setValue("eventRegistrations")
     );
 
   config
@@ -125,8 +131,14 @@ wa_connector.getConfig = function(request) {
   var shouldShowSentEmailsFields = !isFirstRequest && configParams.resource === "sentEmails";
   var shouldShowPaymentsFields = !isFirstRequest && configParams.resource === "payments";
   var shouldShowEventFields = !isFirstRequest && configParams.resource === "event";
+  var shouldShowEventRegistrationFields = !isFirstRequest && configParams.resource === "eventRegistrations";
   var shouldShowPageField =
-    shouldShowContactFields || shouldShowInvoicesFields || shouldShowAuditLogFields || shouldShowEventFields || shouldShowSentEmailsFields || shouldShowPaymentsFields;
+    shouldShowContactFields ||
+    shouldShowInvoicesFields ||
+    shouldShowAuditLogFields ||
+    shouldShowEventFields ||
+    shouldShowSentEmailsFields ||
+    shouldShowPaymentsFields;
   var shouldShowFilterField = shouldShowContactFields || shouldShowEventFields || shouldShowSentEmailsFields;
   var shouldShowCountField = shouldShowContactFields;
 
@@ -262,13 +274,83 @@ wa_connector.getConfig = function(request) {
       .setHelpText("If checked, only Members will be included in the report.");
   }
 
+  if (shouldShowEventRegistrationFields) {
+    config
+      .newSelectSingle()
+      .setId("eventRegistrationType")
+      .setName("Search type")
+      .setHelpText("Search event registrations by one of these fields")
+      .addOption(
+        config
+          .newOptionBuilder()
+          .setLabel("User ID")
+          .setValue("eventRegistrationUserId")
+      )
+      .addOption(
+        config
+          .newOptionBuilder()
+          .setLabel("Event ID")
+          .setValue("eventRegistrationEventId")
+      );
+
+    config
+      .newInfo()
+      .setId("searchTypeErrorLabel")
+      .setText("Search type is required.");
+
+    var isEventRegistrationTypeEmpty =
+      isFirstRequest || configParams.eventRegistrationType === undefined || configParams.eventRegistrationType === null;
+
+    if (!isEventRegistrationTypeEmpty) {
+      var isUserId = configParams.eventRegistrationType === "eventRegistrationUserId";
+      var eventRegistrationSearchName = isUserId ? "User ID" : "Event ID";
+      var eventRegistrationSearchHelpText = isUserId ? "A comma-delimited list of User ID's to search by" : "An Event ID to search by";
+
+      config
+        .newTextInput()
+        .setId("eventRegistrationSearch")
+        .setName(eventRegistrationSearchName)
+        .setAllowOverride(true)
+        .setHelpText(eventRegistrationSearchHelpText);
+
+      config
+        .newInfo()
+        .setId("searchErrorLabel")
+        .setText("ID is required.");
+
+      config
+        .newCheckbox()
+        .setId("includeFormDetails")
+        .setName("Include registration form details")
+        .setAllowOverride(true)
+        .setHelpText("If checked, registration form details will be included in the report.");
+
+      config
+        .newCheckbox()
+        .setId("includeWaitlist")
+        .setName("Include waitlisted registrations")
+        .setAllowOverride(true)
+        .setHelpText("If checked, waitlisted registrations will be included in the report.");
+    }
+  }
+
   var isResourceEmpty = isFirstRequest || configParams.resource === undefined || configParams.resource === null;
   var isApiKeyEmpty = isFirstRequest || configParams.apikey === undefined || configParams.apikey === null;
   var isPagingEmpty = isFirstRequest || configParams.Paging === undefined || configParams.Paging === null;
+  var isEventRegistrationSearchRequired = !isFirstRequest && configParams.resource === "eventRegistrations";
+  var isEventRegistrationSearchEmpty =
+    isFirstRequest || configParams.eventRegistrationSearch === undefined || configParams.eventRegistrationSearch === null;
   var isDateRangeRequired =
     !isFirstRequest &&
-    (configParams.resource === "auditLog" || configParams.resource === "invoices" || configParams.resource === "contacts" || configParams.resource === "payments");
-  var canProceedToNextStep = !isApiKeyEmpty && !isResourceEmpty && (!shouldShowPageField || (shouldShowPageField && !isPagingEmpty));
+    (configParams.resource === "auditLog" ||
+      configParams.resource === "invoices" ||
+      configParams.resource === "contacts" ||
+      configParams.resource === "payments");
+  var canProceedToNextStep =
+    !isApiKeyEmpty &&
+    !isResourceEmpty &&
+    (!shouldShowPageField || (shouldShowPageField && !isPagingEmpty)) &&
+    (!isEventRegistrationSearchRequired || (isEventRegistrationSearchRequired && !isEventRegistrationSearchEmpty));
 
   if (isDateRangeRequired) {
     config.setDateRangeRequired(true);
@@ -398,7 +480,7 @@ wa_connector.getSchema = function(request) {
 wa_connector.getData = function(request) {
   // Dictionary mapping field name(keys) to field types(vals)
   var field_maps = {};
-  // Account Id
+
   field_maps["AccountId"] = "account_id";
   var rows = [];
   var schema = WASchema[request.configParams.resource];
@@ -419,9 +501,8 @@ wa_connector.getData = function(request) {
     schema = custom(request);
   }
   var selectedDimensionsMetrics = _filterSelectedItems(schema, request.fields);
-  //  Logger.log(selectedDimensionsMetrics);
+
   if (request.configParams.resource == "account") {
-    //ACCOUNT
     var row = [];
     selectedDimensionsMetrics.forEach(function(field) {
       switch (field.name) {
@@ -1281,7 +1362,13 @@ wa_connector.getData = function(request) {
 
     while (true) {
       var paymentsEndpoint =
-        API_PATHS.accounts + account.Id + "/payments?$skip=" + skip + "&$top=" + request.configParams.Paging+ "&StartDate=" +
+        API_PATHS.accounts +
+        account.Id +
+        "/payments?$skip=" +
+        skip +
+        "&$top=" +
+        request.configParams.Paging +
+        "&StartDate=" +
         request.dateRange.startDate +
         "&EndDate=" +
         request.dateRange.endDate;
@@ -1357,6 +1444,103 @@ wa_connector.getData = function(request) {
         break;
       }
     }
+  } else if (request.configParams.resource === "eventRegistrations") {
+    var shouldIncludeFormDetails = Boolean(request.configParams.includeFormDetails) === true;
+    var shouldIncludeWaitlist = Boolean(request.configParams.includeWaitlist) === true;
+    var searchId = request.configParams.eventRegistrationSearch.toString().trim();
+    var isSearchIdSingular = searchId.indexOf(",") === -1;
+    var searchType = request.configParams.eventRegistrationType;
+    var eventRegistrationsEndpoint = API_PATHS.accounts + account.Id + "/eventregistrations?";
+
+    if (searchType === "eventRegistrationUserId") {
+      if (isSearchIdSingular) {
+        eventRegistrationsEndpoint += "contactId=" + searchId;
+      } else {
+        eventRegistrationsEndpoint += "$filter=id in [" + searchId + "]";
+      }
+    } else if (searchType === "eventRegistrationEventId") {
+      eventRegistrationsEndpoint += "eventId=" + searchId;
+    }
+
+    eventRegistrationsEndpoint +=
+      (shouldIncludeFormDetails ? "&includeDetails=true" : "") + (shouldIncludeWaitlist ? "&includeWaitlist=true" : "");
+
+    var eventRegistrations = _fetchAPI(eventRegistrationsEndpoint, token);
+
+    eventRegistrations.forEach(function(eventRegistration) {
+      var row = [];
+      selectedDimensionsMetrics.forEach(function(field) {
+        switch (field.name) {
+          case "Id":
+            row.push(eventRegistration.Event.Id);
+            break;
+          case "EventName":
+            row.push(eventRegistration.Event.Name);
+            break;
+          case "StartDate":
+            if (typeof eventRegistration.Event.StartDate === "undefined") row.push(null);
+            else row.push(eventRegistration.Event.StartDate);
+            break;
+          case "EndDate":
+            if (typeof eventRegistration.Event.EndDate === "undefined") row.push(null);
+            else row.push(eventRegistration.Event.EndDate);
+            break;
+          case "Location":
+            row.push(eventRegistration.Event.Location);
+            break;
+          case "RegistrantName":
+            row.push(eventRegistration.Contact.Name);
+            break;
+          case "RegistrationType":
+            row.push(eventRegistration.RegistrationType.Name);
+            break;
+          case "Organization":
+            row.push(eventRegistration.Organization);
+            break;
+          case "IsCheckedIn":
+            if (typeof eventRegistration.IsCheckedIn === "undefined") row.push(null);
+            else row.push(eventRegistration.IsCheckedIn);
+            break;
+          case "RegistrationFee":
+            if (typeof eventRegistration.RegistrationFee === "undefined") row.push(null);
+            else row.push(eventRegistration.RegistrationFee);
+            break;
+          case "PaidAmount":
+            if (typeof eventRegistration.PaidSum === "undefined") row.push(null);
+            else row.push(eventRegistration.PaidSum);
+            break;
+          case "IsRegistrationPaid":
+            if (typeof eventRegistration.IsPaid === "undefined") row.push(null);
+            else row.push(eventRegistration.IsPaid);
+            break;
+          case "RegistrationDate":
+            if (shouldIncludeFormDetails) {
+              if (typeof eventRegistration.RegistrationDate === "undefined") row.push(null);
+              else row.push(eventRegistration.RegistrationDate);
+            }
+            break;
+          case "Memo":
+            if (shouldIncludeFormDetails) {
+              row.push(eventRegistration.Memo);
+            }
+            break;
+          case "IsGuestRegistration":
+            if (shouldIncludeFormDetails) {
+              if (typeof eventRegistration.IsGuestRegistration === "undefined") row.push(null);
+              else row.push(eventRegistration.IsGuestRegistration);
+            }
+            break;
+          case "IsWaitlisted":
+            if (shouldIncludeFormDetails) {
+              if (typeof eventRegistration.OnWaitlist === "undefined") row.push(null);
+              else row.push(eventRegistration.OnWaitlist);
+            }
+            break;
+          default:
+        }
+      });
+      rows.push({ values: row });
+    });
   }
 
   return {
@@ -1462,15 +1646,12 @@ function _getAccessToken(apikey) {
 function _fetchAPI(url, token) {
   // HTTP request
   try {
-    var requestParams = {
+    var responseJSON = UrlFetchApp.fetch(url, {
       method: "GET",
       headers: { Authorization: "Bearer " + token },
       accept: "application/json"
-    };
-
-    var responseJSON = UrlFetchApp.fetch(url, requestParams); // request Params in order to fetch from API
-    return JSON.parse(responseJSON); // returns back from request, parses into Javascript object, ready to be used
-    //    console.log(responseJSON);
+    });
+    return JSON.parse(responseJSON);
   } catch (e) {
     DataStudioApp.createCommunityConnector()
       .newUserError()
