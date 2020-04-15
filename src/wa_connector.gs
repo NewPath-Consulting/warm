@@ -326,14 +326,16 @@ wa_connector.getConfig = function(request) {
         .setId("searchErrorLabel")
         .setText("ID is required.");
 
-      config
-        .newCheckbox()
-        .setId("includeFormDetails")
-        .setName("Include registration form details")
-        .setAllowOverride(true)
-        .setHelpText(
-          "If checked, registration form details will be included in the report. If unchecked, these fields will still be present in the report but attempting to access them will result in an error."
-        );
+      if (isEventId) {
+        config
+          .newCheckbox()
+          .setId("includeFormDetails")
+          .setName("Include registration form details")
+          .setAllowOverride(true)
+          .setHelpText(
+            "If checked, registration form details will be included in the report. If unchecked, these fields will still be present in the report but attempting to access them will result in an error."
+          );
+      }
 
       config
         .newCheckbox()
@@ -383,10 +385,14 @@ wa_connector.getConfig = function(request) {
   return config.build();
 };
 
-function appendCustomFields(request, schema) {
+function appendCustomFields(request, schema, filter) {
   if (typeof schema === "undefined") {
     schema = [];
   }
+  if (typeof filter === "undefined") {
+    filter = [];
+  }
+  var hasFilter = filter.length > 0;
   if (!token) {
     token = getAccessToken(request.configParams.apikey);
   }
@@ -402,7 +408,7 @@ function appendCustomFields(request, schema) {
   });
 
   customFieldsResponse.forEach(function(field) {
-    if (field.name in existingFieldMap) {
+    if (field.FieldName in existingFieldMap || (hasFilter && filter.indexOf(field.FieldName) === -1)) {
       return;
     }
 
@@ -496,18 +502,56 @@ function convertSchemaCurrency(request, schema) {
 }
 
 wa_connector.getSchema = function(request) {
+  if (!token) {
+    token = getAccessToken(request.configParams.apikey);
+  }
+
   var doesSchemaRequireCustomFields = request.configParams.resource === "custom" || request.configParams.resource === "eventRegistrations";
+  var isEventRegistration = request.configParams.resource === "eventRegistrations";
   var schema = [];
   if (request.configParams.resource in WASchema) {
     schema = WASchema[request.configParams.resource];
   }
 
   if (doesSchemaRequireCustomFields) {
-    appendCustomFields(request, schema);
+    if (isEventRegistration) {
+      var shouldIncludeFormDetails = Boolean(request.configParams.includeFormDetails) === true;
+
+      if (shouldIncludeFormDetails) {
+        var shouldIncludeWaitlist = Boolean(request.configParams.includeWaitlist) === true;
+        var searchId = request.configParams.eventRegistrationSearch.toString().trim();
+        var searchType = request.configParams.eventRegistrationType;
+        var account = fetchAPI(API_PATHS.accounts, token)[0];
+        var eventRegistrationsEndpoint = API_PATHS.accounts + account.Id + "/eventregistrations?";
+
+        if (searchType === "eventRegistrationUserId") {
+          eventRegistrationsEndpoint += "contactId=" + searchId;
+        } else if (searchType === "eventRegistrationEventId") {
+          eventRegistrationsEndpoint += "eventId=" + searchId;
+        } else if (searchType === "eventRegistrationEventRegistrationId") {
+          eventRegistrationsEndpoint += "$filter=id in [" + searchId + "]";
+        }
+
+        eventRegistrationsEndpoint +=
+          (shouldIncludeFormDetails ? "&includeDetails=true" : "") + (shouldIncludeWaitlist ? "&includeWaitlist=true" : "");
+
+        var eventRegistrations = fetchAPI(eventRegistrationsEndpoint, token);
+        var uniqueCustomFields = [];
+        eventRegistrations.forEach(function(eventRegistration) {
+          eventRegistration.RegistrationFields.forEach(function(field) {
+            if (uniqueCustomFields.indexOf(field.FieldName) === -1) {
+              uniqueCustomFields.push(field.FieldName);
+            }
+          });
+        });
+        appendCustomFields(request, schema, uniqueCustomFields);
+      }
+    } else {
+      appendCustomFields(request, schema);
+    }
   }
 
   schema = convertSchemaCurrency(request, schema);
-  1;
   return { schema: schema };
 };
 
