@@ -1086,5 +1086,149 @@ var WASchema = {
         conceptType: "DIMENSION"
       }
     }
+  ],
+  eventRegistrations: [
+    {
+      name: "Id",
+      label: "Event ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "EventName",
+      label: "Event Name",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "StartDate",
+      label: "Event Start Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_HOUR"
+      }
+    },
+    {
+      name: "EndDate",
+      label: "Event End Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_HOUR"
+      }
+    },
+    {
+      name: "Location",
+      label: "Event Location",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "RegistrantName",
+      label: "Registrant Name",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "RegistrationType",
+      label: "Registration Type",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Organization",
+      label: "Organization",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "IsCheckedIn",
+      label: "Registrant Checked In",
+      dataType: "BOOLEAN",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "BOOLEAN"
+      }
+    },
+    {
+      name: "RegistrationFee",
+      label: "Registration Fee",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "METRIC",
+        semanticGroup: "CURRENCY",
+        semanticType: "CURRENCY_CAD"
+      }
+    },
+    {
+      name: "PaidAmount",
+      label: "Paid Amount",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "METRIC",
+        semanticGroup: "CURRENCY",
+        semanticType: "CURRENCY_CAD"
+      }
+    },
+    {
+      name: "IsRegistrationPaid",
+      label: "Registration Paid",
+      dataType: "BOOLEAN",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "BOOLEAN"
+      }
+    },
+    {
+      name: "RegistrationDate",
+      label: "Registration Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_HOUR"
+      }
+    },
+    {
+      name: "Memo",
+      label: "Memo",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "IsGuestRegistration",
+      label: "Is Guest Registration",
+      dataType: "BOOLEAN",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "BOOLEAN"
+      }
+    },
+    {
+      name: "IsWaitlisted",
+      label: "Is Waitlisted",
+      dataType: "BOOLEAN",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "BOOLEAN"
+      }
+    },
   ]
 };
