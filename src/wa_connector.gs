@@ -397,8 +397,20 @@ function appendCustomFields(request, schema, filter) {
     token = getAccessToken(request.configParams.apikey);
   }
   var account = fetchAPI(API_PATHS.accounts, token)[0];
+  var shouldIncludeFormDetails = Boolean(request.configParams.includeFormDetails) === true;
   var contactfieldsEndpoint = API_PATHS.accounts + account.Id + "/contactfields?showSectionDividers=false";
   var customFieldsResponse = fetchAPI(contactfieldsEndpoint, token);
+  var eventFields = [];
+
+  if (shouldIncludeFormDetails) {
+    var eventId = request.configParams.eventRegistrationSearch.toString().trim();
+    var eventFieldsEndpoint = API_PATHS.accounts + account.Id + "/events/" + eventId;
+    var eventFieldsResponse = fetchAPI(eventFieldsEndpoint, token);
+
+    if (eventFieldsResponse && "Details" in eventFieldsResponse) {
+      eventFields = eventFieldsResponse.Details.EventRegistrationFields;
+    }
+  }
 
   var existingFieldMap = {};
   schema.forEach(function(field) {
@@ -407,19 +419,25 @@ function appendCustomFields(request, schema, filter) {
     }
   });
 
-  customFieldsResponse.forEach(function(field) {
+  eventFields.forEach(appendField);
+  customFieldsResponse.forEach(appendField);
+  schema.push(mapSchema("AccountId", "AccountId"));
+
+  function appendField(field) {
     if (field.FieldName in existingFieldMap || (hasFilter && filter.indexOf(field.FieldName) === -1)) {
       return;
     }
 
+    existingFieldMap[field.FieldName] = field;
+
     if (field.SystemCode.substring(0, 7) == "custom-" || field.SystemCode == "FirstName" || field.SystemCode == "LastName") {
-      schema.push(mapSchema(field.FieldType, field.FieldName));
+      var fieldType = "FieldType" in field ? field.FieldType : field.Type;
+      schema.push(mapSchema(fieldType, field.FieldName));
     } else if (field.SystemCode == "MemberId") {
       // In the returned JSON, the field "User ID" has an undefined field type, use "ID" instead
       schema.push(mapSchema("ID", field.FieldName));
     }
-  });
-  schema.push(mapSchema("AccountId", "AccountId"));
+  }
 
   return schema;
 }
@@ -432,6 +450,7 @@ function mapSchema(fieldType, fieldName) {
   var formattedFieldName = formatField(fieldName);
   switch (fieldType) {
     case "RulesAndTerms":
+    case "Boolean":
       return {
         name: formattedFieldName,
         label: fieldName,
@@ -442,6 +461,7 @@ function mapSchema(fieldType, fieldName) {
         }
       };
     case "Date":
+    case "DateTime":
       return {
         name: formattedFieldName,
         label: fieldName,
@@ -1614,7 +1634,7 @@ wa_connector.getData = function(request) {
               if (doesFieldExist) {
                 var registrationCustomField = registrationCustomFields[field.name];
                 var fieldName = formatField(registrationCustomField.FieldName);
-                var value = getCustomFieldValue(fieldName, registrationCustomField);
+                var value = getCustomFieldValue(registrationCustomField);
                 row.push(value);
               } else {
                 row.push(null);
@@ -1636,7 +1656,7 @@ wa_connector.getData = function(request) {
   };
 };
 
-function getCustomFieldValue(fieldName, field) {
+function getCustomFieldValue(field) {
   function parseValueFromObject(obj) {
     if (obj === null || typeof obj !== "object" || Array.isArray(obj)) {
       return null;
