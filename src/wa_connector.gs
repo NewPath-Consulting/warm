@@ -107,6 +107,12 @@ wa_connector.getConfig = function(request) {
     .addOption(
       config
         .newOptionBuilder()
+        .setLabel("Invoice Details")
+        .setValue("invoiceDetails")
+    )
+    .addOption(
+      config
+        .newOptionBuilder()
         .setLabel("Sent emails")
         .setValue("sentEmails")
     )
@@ -123,7 +129,7 @@ wa_connector.getConfig = function(request) {
     .setText("Wild Apricot object is required.");
 
   var shouldShowContactFields = !isFirstRequest && (configParams.resource === "contacts" || configParams.resource === "custom");
-  var shouldShowInvoicesFields = !isFirstRequest && configParams.resource === "invoices";
+  var shouldShowInvoicesFields = !isFirstRequest && (configParams.resource === "invoices" || configParams.resource === "invoiceDetails");
   var shouldShowAuditLogFields = !isFirstRequest && configParams.resource === "auditLog";
   var shouldShowSentEmailsFields = !isFirstRequest && configParams.resource === "sentEmails";
   var shouldShowPaymentsFields = !isFirstRequest && configParams.resource === "payments";
@@ -356,6 +362,7 @@ wa_connector.getConfig = function(request) {
     !isFirstRequest &&
     (configParams.resource === "auditLog" ||
       configParams.resource === "invoices" ||
+      configParams.resource === "invoiceDetails" ||
       configParams.resource === "contacts" ||
       configParams.resource === "payments");
   var canProceedToNextStep =
@@ -561,9 +568,6 @@ wa_connector.getData = function(request) {
   }
 
   var rows = [];
-  var fieldTypeToValueMap = {
-    AccountId: "account_id"
-  };
   var schema = wa_connector.getSchema(request).schema;
   var account = fetchAPI(API_PATHS.accounts, token)[0];
   var selectedDimensionsMetrics = filterSelectedItems(schema, request.fields);
@@ -1247,6 +1251,128 @@ wa_connector.getData = function(request) {
         break;
       }
     }
+  } else if (request.configParams.resource == "invoiceDetails") {
+    var skip = 0,
+      count = 0,
+      invoiceIds = [];
+
+    while (true) {
+      var accountsEndpoint =
+        API_PATHS.accounts +
+        account.Id +
+        "/invoices?unpaidOnly=false&idsOnly=true&StartDate=" +
+        request.dateRange.startDate +
+        "&EndDate=" +
+        request.dateRange.endDate +
+        "&includeVoided=" +
+        (request.configParams.includeVoided ? "true" : "false") +
+        "&$skip=" +
+        skip +
+        "&$top=" +
+        request.configParams.Paging;
+      var invoiceIdsResponse = fetchAPI(accountsEndpoint, token);
+      invoiceIds = invoiceIds.concat(invoiceIdsResponse.InvoiceIdentifiers);
+
+      skip += Number(request.configParams.Paging);
+      if (invoiceIdsResponse.InvoiceIdentifiers.length < Number(request.configParams.Paging)) {
+        break;
+      }
+    }
+
+    invoiceIds.map(function(id) {
+      var endpoint = API_PATHS.accounts + account.Id + "/invoices/" + id;
+      var invoice = fetchAPI(endpoint, token);
+      var eventId = null;
+
+      if (invoice.OrderType === "EventRegistration" && "EventRegistration" in invoice) {
+        var eventRegistrationEndpoint = API_PATHS.accounts + account.Id + "/eventregistrations/" + invoice.EventRegistration.Id;
+        var eventRegistration = fetchAPI(eventRegistrationEndpoint, token);
+        eventId = eventRegistration.Event.Id;
+      }
+
+      invoice.OrderDetails.forEach(function(orderDetails) {
+        var row = [];
+        selectedDimensionsMetrics.forEach(function(field) {
+          switch (field.name) {
+            case "AccountIdMain4":
+              row.push(invoice.Id);
+              break;
+            case "Id":
+              if (typeof invoice.DocumentNumber === "undefined") row.push(null);
+              else row.push(invoice.DocumentNumber);
+              break;
+            case "Url":
+              if (typeof invoice.Url === "undefined") row.push(null);
+              else row.push(invoice.Url);
+              break;
+            case "IsPaid":
+              row.push(invoice.IsPaid);
+              break;
+            case "PaidAmount":
+              if (typeof invoice.PaidAmount === "undefined" || !invoice.PaidAmount) row.push(null);
+              else row.push(invoice.PaidAmount);
+              break;
+            case "ContactId":
+              if (typeof invoice.Contact === "undefined") row.push(null);
+              else row.push(invoice.Contact.Id);
+              break;
+            case "CreatedDate":
+              if (typeof invoice.CreatedDate === "undefined") row.push(null);
+              else row.push(parseDateTime(invoice.CreatedDate));
+              break;
+            case "OrderType":
+              row.push(invoice.OrderType);
+              break;
+            case "PublicMemo":
+              row.push(convertToNullString(invoice.PublicMemo));
+              break;
+            case "Memo":
+              row.push(convertToNullString(invoice.Memo));
+              break;
+            case "ContactName":
+              row.push(invoice.Contact.Name);
+              break;
+            case "Value":
+              row.push(invoice.Value);
+              break;
+            case "OrderDetailType":
+              row.push(orderDetails.OrderDetailType);
+              break;
+            case "OrderValue":
+              row.push(orderDetails.Value);
+              break;
+            case "OrderNote":
+              row.push(orderDetails.Notes);
+              break;
+            case "OrderTaxAmount":
+              row.push(orderDetails.Taxes.Amount);
+              break;
+            case "OrderTax1":
+              row.push(orderDetails.Taxes.CalculatedTax1);
+              break;
+            case "OrderTax2":
+              row.push(orderDetails.Taxes.CalculatedTax2);
+              break;
+            case "OrderNetTax":
+              row.push(orderDetails.Taxes.NetAmount);
+              break;
+            case "OrderRoundedNetTax":
+              row.push(orderDetails.Taxes.RoundedAmount);
+              break;
+            case "EventId":
+              row.push(eventId);
+              break;
+            case "VoidedDate":
+              var date = "VoidedDate" in orderDetails ? parseDateTime(orderDetails.VoidedDate) : null;
+              row.push(date);
+              break;
+            default:
+          }
+        });
+
+        rows.push({ values: row });
+      });
+    });
   } else if (request.configParams.resource == "custom") {
     var skip = 0,
       count = 0;

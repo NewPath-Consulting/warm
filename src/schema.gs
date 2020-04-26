@@ -772,6 +772,194 @@ var WASchema = {
       }
     }
   ],
+  invoiceDetails: [
+    {
+      name: "AccountIdMain4",
+      label: "Account ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Id",
+      label: "Invoice Number",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Url",
+      label: "Invoice Url",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "TEXT"
+      }
+    },
+    {
+      name: "IsPaid",
+      label: "Paid",
+      dataType: "BOOLEAN",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "BOOLEAN"
+      }
+    },
+    {
+      name: "PaidAmount",
+      label: "Paid Amount",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "METRIC",
+        semanticGroup: "CURRENCY",
+        semanticType: "CURRENCY_CAD"
+      }
+    },
+    {
+      name: "ContactId",
+      label: "User Id",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "CreatedDate",
+      label: "Invoice Created Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_SECOND"
+      }
+    },
+    {
+      name: "OrderType",
+      label: "Origin",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "PublicMemo",
+      label: "Comments for payer",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Memo",
+      label: "Internal notes",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "ContactName",
+      label: "Invoiced to",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Value",
+      label: "Total Amount",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "METRIC",
+        semanticGroup: "CURRENCY",
+        semanticType: "CURRENCY_CAD"
+      }
+    },
+    {
+      name: "EventId",
+      label: "Event ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderDetailType",
+      label: "Order Detail Type",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderValue",
+      label: "Order Value",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderNote",
+      label: "Order Note",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderTaxAmount",
+      label: "Order Tax Amount",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderTax1",
+      label: "Order Tax 1",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderTax2",
+      label: "Order Tax 2",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderNetTax",
+      label: "Order Net Tax",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderRoundedNetTax",
+      label: "Order Rounded Net Tax",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "VoidedDate",
+      label: "Invoice Voided Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_SECOND"
+      }
+    }
+  ],
   sentEmails: [
     {
       name: "Id",
@@ -1229,6 +1417,6 @@ var WASchema = {
         conceptType: "DIMENSION",
         semanticType: "BOOLEAN"
       }
-    },
+    }
   ]
 };
