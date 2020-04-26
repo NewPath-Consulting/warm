@@ -211,9 +211,9 @@ wa_connector.getConfig = function(request) {
 
   if (shouldShowFilterField) {
     var contactsFilterText =
-      "Create a filter clause to return only a subset of contact records to speed up processing in Google Data Studio. See https://gethelp.wildapricot.com/en/articles/502#filtering for more details.";
+      "Create a filter clause to return only a subset of contact records to speed up processing in Google Data Studio.  Example: 'Member since' ge 2010-01-01 OR 'Membership status.Label' eq 'Active'. See https://gethelp.wildapricot.com/en/articles/502#filtering for more details.";
     var eventsFilterText =
-      "Create a filter clause to return only a subset of event records to speed up processing in Google Data Studio. See https://gethelp.wildapricot.com/en/articles/499-events-admin-api-call#filtering for more details.";
+      "Create a filter clause to return only a subset of event records to speed up processing in Google Data Studio.  Example: 'Member since' ge 2010-01-01 OR 'Membership status.Label' eq 'Active'. See https://gethelp.wildapricot.com/en/articles/499-events-admin-api-call#filtering for more details.";
     var sentEmailsFilterText =
       "Allowed filter fields (allowed operations):\n\nSentDate (ge, le),\nSenderId (eq) - ID of sender,\nOriginType (eq) - see SentEmail.Origin.OriginType,\nSendingType (eq) -SentEmail.SendingType (Automatic or Manual)\n\nThe AND boolean operator supported only for this filter.\n\n...&$filter=SentDate ge 2018-05-01 - will return records sent on or after May 1st, 2018";
     var filterText = contactsFilterText;
