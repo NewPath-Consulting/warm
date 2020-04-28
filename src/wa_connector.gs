@@ -474,6 +474,7 @@ function mapSchema(fieldType, fieldName) {
     case "ID":
     case "AccountId":
     case "ExtraChargeCalculation":
+    case "CalculatedExtraCharge":
       return {
         name: formattedFieldName,
         label: fieldName,
@@ -1633,7 +1634,6 @@ wa_connector.getData = function(request) {
               var doesFieldExist = field.name in registrationCustomFields;
               if (doesFieldExist) {
                 var registrationCustomField = registrationCustomFields[field.name];
-                var fieldName = formatField(registrationCustomField.FieldName);
                 var value = getCustomFieldValue(registrationCustomField);
                 row.push(value);
               } else {
@@ -1675,6 +1675,7 @@ function getCustomFieldValue(field) {
   switch (typeof field.Value) {
     case "number":
     case "string":
+    case "boolean":
       formattedValue = field.Value;
       break;
     case "object":
@@ -1687,7 +1688,7 @@ function getCustomFieldValue(field) {
         if (formattedValue.length === 0) {
           formattedValue = null;
         }
-      } else {
+      } else if (field.Value !== null) {
         formattedValue = parseValueFromObject(field.Value);
       }
       break;
