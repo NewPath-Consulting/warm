@@ -1345,19 +1345,19 @@ wa_connector.getData = function(request) {
               row.push(orderDetails.Notes);
               break;
             case "OrderTaxAmount":
-              row.push(orderDetails.Taxes.Amount);
+              row.push(orderDetails.Taxes === null ? null : orderDetails.Taxes.Amount);
               break;
             case "OrderTax1":
-              row.push(orderDetails.Taxes.CalculatedTax1);
+              row.push(orderDetails.Taxes === null ? null : orderDetails.Taxes.CalculatedTax1);
               break;
             case "OrderTax2":
-              row.push(orderDetails.Taxes.CalculatedTax2);
+              row.push(orderDetails.Taxes === null ? null : orderDetails.Taxes.CalculatedTax2);
               break;
             case "OrderNetTax":
-              row.push(orderDetails.Taxes.NetAmount);
+              row.push(orderDetails.Taxes === null ? null : orderDetails.Taxes.NetAmount);
               break;
             case "OrderRoundedNetTax":
-              row.push(orderDetails.Taxes.RoundedAmount);
+              row.push(orderDetails.Taxes === null ? null : orderDetails.Taxes.RoundedAmount);
               break;
             case "EventId":
               row.push(eventId);
