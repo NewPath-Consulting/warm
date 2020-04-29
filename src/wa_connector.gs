@@ -1610,23 +1610,31 @@ wa_connector.getData = function(request) {
             if (shouldIncludeFormDetails) {
               if (typeof eventRegistration.RegistrationDate === "undefined") row.push(null);
               else row.push(parseDateTime(eventRegistration.RegistrationDate));
+            } else {
+              row.push(null);
             }
             break;
           case "Memo":
             if (shouldIncludeFormDetails) {
               row.push(eventRegistration.Memo);
+            } else {
+              row.push(null);
             }
             break;
           case "IsGuestRegistration":
             if (shouldIncludeFormDetails) {
               if (typeof eventRegistration.IsGuestRegistration === "undefined") row.push(null);
               else row.push(eventRegistration.IsGuestRegistration);
+            } else {
+              row.push(null);
             }
             break;
           case "IsWaitlisted":
             if (shouldIncludeFormDetails) {
               if (typeof eventRegistration.OnWaitlist === "undefined") row.push(null);
               else row.push(eventRegistration.OnWaitlist);
+            } else {
+              row.push(null);
             }
             break;
           default:
