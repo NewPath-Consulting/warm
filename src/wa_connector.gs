@@ -1248,6 +1248,7 @@ wa_connector.getData = function(request) {
       }
     }
   } else if (request.configParams.resource == "custom") {
+    var userFilter = typeof request.configParams.filter === "string" ? request.configParams.filter : "";
     var skip = 0,
       count = 0;
     while (true) {
@@ -1259,11 +1260,12 @@ wa_connector.getData = function(request) {
         }
         filter += "Member eq true";
       }
+      filter += userFilter;
 
       var membersEndpoint =
         API_PATHS.accounts +
         account.Id +
-        "/Contacts?$async=false&" +
+        "/Contacts?$async=false&$filter=" +
         filter +
         "&$skip=" +
         skip.toString() +
