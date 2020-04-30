@@ -1260,6 +1260,9 @@ wa_connector.getData = function(request) {
         }
         filter += "Member eq true";
       }
+      if (filter.length > 0 && userFilter.length > 0) {
+        filter += " AND ";
+      }
       filter += userFilter;
 
       var membersEndpoint =
@@ -1267,48 +1270,64 @@ wa_connector.getData = function(request) {
         account.Id +
         "/Contacts?$async=false&$filter=" +
         filter +
-        "&$skip=" +
-        skip.toString() +
-        "&$top=" +
-        request.configParams.Paging;
+        (request.configParams.countOnly ? "" : "&$skip=" + skip.toString()) +
+        (request.configParams.countOnly ? "" : "&$top=" + request.configParams.Paging) +
+        (request.configParams.countOnly ? "&$count=true" : "");
+
       var members = fetchAPI(membersEndpoint, token); // returns object that contains data from the API call
-      var n = members.Contacts.length;
+      var n = request.configParams.countOnly ? 1 : members.Contacts.length;
       count += 1;
 
-      members.Contacts.forEach(function(member) {
+      if (request.configParams.countOnly) {
         var row = [];
-        var fields = {
-          AccountId: {}
-        };
-
-        member.FieldValues.forEach(function(field) {
-          var fieldName = formatField(field.FieldName);
-          fields[fieldName] = field;
-        });
-
-        selectedDimensionsMetrics.forEach(function(schemaField) {
-          var doesFieldExist = schemaField.name in fields;
-
-          if (doesFieldExist) {
-            if (schemaField.name === "AccountId") {
-              row.push(account.Id);
-            } else {
-              var customField = fields[schemaField.name];
-              var value = getCustomFieldValue(schemaField.name, customField);
-              row.push(value);
-            }
-          } else {
-            row.push(null);
+        selectedDimensionsMetrics.forEach(function(field) {
+          switch (field.name) {
+            case "Count":
+              row.push(members.Count);
+              break;
+            default:
+              row.push(null);
+              break;
           }
         });
-
-        rows.push({ values: row });
-      });
-
-      skip += Number(request.configParams.Paging);
-      if (n < Number(request.configParams.Paging)) {
+        rows.push({ values: row }); // final response
         break;
-      } // exit when reached the end
+      } else {
+        members.Contacts.forEach(function(member) {
+          var row = [];
+          var fields = {
+            AccountId: {}
+          };
+
+          member.FieldValues.forEach(function(field) {
+            var fieldName = formatField(field.FieldName);
+            fields[fieldName] = field;
+          });
+
+          selectedDimensionsMetrics.forEach(function(schemaField) {
+            var doesFieldExist = schemaField.name in fields;
+
+            if (doesFieldExist) {
+              if (schemaField.name === "AccountId") {
+                row.push(account.Id);
+              } else {
+                var customField = fields[schemaField.name];
+                var value = getCustomFieldValue(schemaField.name, customField);
+                row.push(value);
+              }
+            } else {
+              row.push(null);
+            }
+          });
+
+          rows.push({ values: row });
+        });
+
+        skip += Number(request.configParams.Paging);
+        if (n < Number(request.configParams.Paging)) {
+          break;
+        } // exit when reached the end
+      }
       console.log("Number of apis used: " + count);
     }
   } else if (request.configParams.resource == "sentEmails") {
