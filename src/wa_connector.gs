@@ -107,6 +107,12 @@ wa_connector.getConfig = function(request) {
     .addOption(
       config
         .newOptionBuilder()
+        .setLabel("Invoice Details")
+        .setValue("invoiceDetails")
+    )
+    .addOption(
+      config
+        .newOptionBuilder()
         .setLabel("Sent emails")
         .setValue("sentEmails")
     )
@@ -123,7 +129,7 @@ wa_connector.getConfig = function(request) {
     .setText("Wild Apricot object is required.");
 
   var shouldShowContactFields = !isFirstRequest && (configParams.resource === "contacts" || configParams.resource === "custom");
-  var shouldShowInvoicesFields = !isFirstRequest && configParams.resource === "invoices";
+  var shouldShowInvoicesFields = !isFirstRequest && (configParams.resource === "invoices" || configParams.resource === "invoiceDetails");
   var shouldShowAuditLogFields = !isFirstRequest && configParams.resource === "auditLog";
   var shouldShowSentEmailsFields = !isFirstRequest && configParams.resource === "sentEmails";
   var shouldShowPaymentsFields = !isFirstRequest && configParams.resource === "payments";
@@ -356,6 +362,7 @@ wa_connector.getConfig = function(request) {
     !isFirstRequest &&
     (configParams.resource === "auditLog" ||
       configParams.resource === "invoices" ||
+      configParams.resource === "invoiceDetails" ||
       configParams.resource === "contacts" ||
       configParams.resource === "payments");
   var canProceedToNextStep =
@@ -397,8 +404,20 @@ function appendCustomFields(request, schema, filter) {
     token = getAccessToken(request.configParams.apikey);
   }
   var account = fetchAPI(API_PATHS.accounts, token)[0];
+  var shouldIncludeFormDetails = Boolean(request.configParams.includeFormDetails) === true;
   var contactfieldsEndpoint = API_PATHS.accounts + account.Id + "/contactfields?showSectionDividers=false";
   var customFieldsResponse = fetchAPI(contactfieldsEndpoint, token);
+  var eventFields = [];
+
+  if (shouldIncludeFormDetails) {
+    var eventId = request.configParams.eventRegistrationSearch.toString().trim();
+    var eventFieldsEndpoint = API_PATHS.accounts + account.Id + "/events/" + eventId;
+    var eventFieldsResponse = fetchAPI(eventFieldsEndpoint, token);
+
+    if (eventFieldsResponse && "Details" in eventFieldsResponse) {
+      eventFields = eventFieldsResponse.Details.EventRegistrationFields;
+    }
+  }
 
   var existingFieldMap = {};
   schema.forEach(function(field) {
@@ -407,19 +426,25 @@ function appendCustomFields(request, schema, filter) {
     }
   });
 
-  customFieldsResponse.forEach(function(field) {
+  eventFields.forEach(appendField);
+  customFieldsResponse.forEach(appendField);
+  schema.push(mapSchema("AccountId", "AccountId"));
+
+  function appendField(field) {
     if (field.FieldName in existingFieldMap || (hasFilter && filter.indexOf(field.FieldName) === -1)) {
       return;
     }
 
+    existingFieldMap[field.FieldName] = field;
+
     if (field.SystemCode.substring(0, 7) == "custom-" || field.SystemCode == "FirstName" || field.SystemCode == "LastName") {
-      schema.push(mapSchema(field.FieldType, field.FieldName));
+      var fieldType = "FieldType" in field ? field.FieldType : field.Type;
+      schema.push(mapSchema(fieldType, field.FieldName));
     } else if (field.SystemCode == "MemberId") {
       // In the returned JSON, the field "User ID" has an undefined field type, use "ID" instead
       schema.push(mapSchema("ID", field.FieldName));
     }
-  });
-  schema.push(mapSchema("AccountId", "AccountId"));
+  }
 
   return schema;
 }
@@ -432,6 +457,7 @@ function mapSchema(fieldType, fieldName) {
   var formattedFieldName = formatField(fieldName);
   switch (fieldType) {
     case "RulesAndTerms":
+    case "Boolean":
       return {
         name: formattedFieldName,
         label: fieldName,
@@ -442,6 +468,7 @@ function mapSchema(fieldType, fieldName) {
         }
       };
     case "Date":
+    case "DateTime":
       return {
         name: formattedFieldName,
         label: fieldName,
@@ -454,6 +481,7 @@ function mapSchema(fieldType, fieldName) {
     case "ID":
     case "AccountId":
     case "ExtraChargeCalculation":
+    case "CalculatedExtraCharge":
       return {
         name: formattedFieldName,
         label: fieldName,
@@ -561,9 +589,6 @@ wa_connector.getData = function(request) {
   }
 
   var rows = [];
-  var fieldTypeToValueMap = {
-    AccountId: "account_id"
-  };
   var schema = wa_connector.getSchema(request).schema;
   var account = fetchAPI(API_PATHS.accounts, token)[0];
   var selectedDimensionsMetrics = filterSelectedItems(schema, request.fields);
@@ -1247,6 +1272,128 @@ wa_connector.getData = function(request) {
         break;
       }
     }
+  } else if (request.configParams.resource == "invoiceDetails") {
+    var skip = 0,
+      count = 0,
+      invoiceIds = [];
+
+    while (true) {
+      var accountsEndpoint =
+        API_PATHS.accounts +
+        account.Id +
+        "/invoices?unpaidOnly=false&idsOnly=true&StartDate=" +
+        request.dateRange.startDate +
+        "&EndDate=" +
+        request.dateRange.endDate +
+        "&includeVoided=" +
+        (request.configParams.includeVoided ? "true" : "false") +
+        "&$skip=" +
+        skip +
+        "&$top=" +
+        request.configParams.Paging;
+      var invoiceIdsResponse = fetchAPI(accountsEndpoint, token);
+      invoiceIds = invoiceIds.concat(invoiceIdsResponse.InvoiceIdentifiers);
+
+      skip += Number(request.configParams.Paging);
+      if (invoiceIdsResponse.InvoiceIdentifiers.length < Number(request.configParams.Paging)) {
+        break;
+      }
+    }
+
+    invoiceIds.map(function(id) {
+      var endpoint = API_PATHS.accounts + account.Id + "/invoices/" + id;
+      var invoice = fetchAPI(endpoint, token);
+      var eventId = null;
+
+      if (invoice.OrderType === "EventRegistration" && "EventRegistration" in invoice) {
+        var eventRegistrationEndpoint = API_PATHS.accounts + account.Id + "/eventregistrations/" + invoice.EventRegistration.Id;
+        var eventRegistration = fetchAPI(eventRegistrationEndpoint, token);
+        eventId = eventRegistration.Event.Id;
+      }
+
+      invoice.OrderDetails.forEach(function(orderDetails) {
+        var row = [];
+        selectedDimensionsMetrics.forEach(function(field) {
+          switch (field.name) {
+            case "AccountIdMain4":
+              row.push(invoice.Id);
+              break;
+            case "Id":
+              if (typeof invoice.DocumentNumber === "undefined") row.push(null);
+              else row.push(invoice.DocumentNumber);
+              break;
+            case "Url":
+              if (typeof invoice.Url === "undefined") row.push(null);
+              else row.push(invoice.Url);
+              break;
+            case "IsPaid":
+              row.push(invoice.IsPaid);
+              break;
+            case "PaidAmount":
+              if (typeof invoice.PaidAmount === "undefined" || !invoice.PaidAmount) row.push(null);
+              else row.push(invoice.PaidAmount);
+              break;
+            case "ContactId":
+              if (typeof invoice.Contact === "undefined") row.push(null);
+              else row.push(invoice.Contact.Id);
+              break;
+            case "CreatedDate":
+              if (typeof invoice.CreatedDate === "undefined") row.push(null);
+              else row.push(parseDateTime(invoice.CreatedDate));
+              break;
+            case "OrderType":
+              row.push(invoice.OrderType);
+              break;
+            case "PublicMemo":
+              row.push(convertToNullString(invoice.PublicMemo));
+              break;
+            case "Memo":
+              row.push(convertToNullString(invoice.Memo));
+              break;
+            case "ContactName":
+              row.push(invoice.Contact.Name);
+              break;
+            case "Value":
+              row.push(invoice.Value);
+              break;
+            case "OrderDetailType":
+              row.push(orderDetails.OrderDetailType);
+              break;
+            case "OrderValue":
+              row.push(orderDetails.Value);
+              break;
+            case "OrderNote":
+              row.push(orderDetails.Notes);
+              break;
+            case "OrderTaxAmount":
+              row.push(orderDetails.Taxes === null ? null : orderDetails.Taxes.Amount);
+              break;
+            case "OrderTax1":
+              row.push(orderDetails.Taxes === null ? null : orderDetails.Taxes.CalculatedTax1);
+              break;
+            case "OrderTax2":
+              row.push(orderDetails.Taxes === null ? null : orderDetails.Taxes.CalculatedTax2);
+              break;
+            case "OrderNetTax":
+              row.push(orderDetails.Taxes === null ? null : orderDetails.Taxes.NetAmount);
+              break;
+            case "OrderRoundedNetTax":
+              row.push(orderDetails.Taxes === null ? null : orderDetails.Taxes.RoundedAmount);
+              break;
+            case "EventId":
+              row.push(eventId);
+              break;
+            case "VoidedDate":
+              var date = "VoidedDate" in orderDetails ? parseDateTime(orderDetails.VoidedDate) : null;
+              row.push(date);
+              break;
+            default:
+          }
+        });
+
+        rows.push({ values: row });
+      });
+    });
   } else if (request.configParams.resource == "custom") {
     var userFilter = typeof request.configParams.filter === "string" ? request.configParams.filter : "";
     var skip = 0,
@@ -1587,6 +1734,9 @@ wa_connector.getData = function(request) {
           case "RegistrationType":
             row.push(eventRegistration.RegistrationType.Name);
             break;
+          case "RegistrationId":
+            row.push(eventRegistration.Id);
+            break;
           case "Organization":
             row.push(eventRegistration.Organization);
             break;
@@ -1610,23 +1760,31 @@ wa_connector.getData = function(request) {
             if (shouldIncludeFormDetails) {
               if (typeof eventRegistration.RegistrationDate === "undefined") row.push(null);
               else row.push(parseDateTime(eventRegistration.RegistrationDate));
+            } else {
+              row.push(null);
             }
             break;
           case "Memo":
             if (shouldIncludeFormDetails) {
               row.push(eventRegistration.Memo);
+            } else {
+              row.push(null);
             }
             break;
           case "IsGuestRegistration":
             if (shouldIncludeFormDetails) {
               if (typeof eventRegistration.IsGuestRegistration === "undefined") row.push(null);
               else row.push(eventRegistration.IsGuestRegistration);
+            } else {
+              row.push(null);
             }
             break;
           case "IsWaitlisted":
             if (shouldIncludeFormDetails) {
               if (typeof eventRegistration.OnWaitlist === "undefined") row.push(null);
               else row.push(eventRegistration.OnWaitlist);
+            } else {
+              row.push(null);
             }
             break;
           default:
@@ -1634,8 +1792,7 @@ wa_connector.getData = function(request) {
               var doesFieldExist = field.name in registrationCustomFields;
               if (doesFieldExist) {
                 var registrationCustomField = registrationCustomFields[field.name];
-                var fieldName = formatField(registrationCustomField.FieldName);
-                var value = getCustomFieldValue(fieldName, registrationCustomField);
+                var value = getCustomFieldValue(registrationCustomField);
                 row.push(value);
               } else {
                 row.push(null);
@@ -1657,7 +1814,7 @@ wa_connector.getData = function(request) {
   };
 };
 
-function getCustomFieldValue(fieldName, field) {
+function getCustomFieldValue(field) {
   function parseValueFromObject(obj) {
     if (obj === null || typeof obj !== "object" || Array.isArray(obj)) {
       return null;
@@ -1676,6 +1833,7 @@ function getCustomFieldValue(fieldName, field) {
   switch (typeof field.Value) {
     case "number":
     case "string":
+    case "boolean":
       formattedValue = field.Value;
       break;
     case "object":
@@ -1688,7 +1846,7 @@ function getCustomFieldValue(fieldName, field) {
         if (formattedValue.length === 0) {
           formattedValue = null;
         }
-      } else {
+      } else if (field.Value !== null) {
         formattedValue = parseValueFromObject(field.Value);
       }
       break;
