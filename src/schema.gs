@@ -1149,6 +1149,14 @@ var WASchema = {
       }
     },
     {
+      name: "RegistrationId",
+      label: "Registration ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
       name: "Organization",
       label: "Organization",
       dataType: "STRING",
@@ -1229,6 +1237,6 @@ var WASchema = {
         conceptType: "DIMENSION",
         semanticType: "BOOLEAN"
       }
-    },
+    }
   ]
 };

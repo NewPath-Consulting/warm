@@ -1587,6 +1587,9 @@ wa_connector.getData = function(request) {
           case "RegistrationType":
             row.push(eventRegistration.RegistrationType.Name);
             break;
+          case "RegistrationId":
+            row.push(eventRegistration.Id);
+            break;
           case "Organization":
             row.push(eventRegistration.Organization);
             break;
