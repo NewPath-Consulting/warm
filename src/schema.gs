@@ -48,7 +48,16 @@ var WASchema = {
       }
     }
   ],
-  // previously members
+  custom: [
+    {
+      name: "Count",
+      label: "Count",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    }
+  ],
   contacts: [
     {
       name: "MemberId",
