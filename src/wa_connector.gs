@@ -326,17 +326,6 @@ wa_connector.getConfig = function(request) {
         .setId("searchErrorLabel")
         .setText("ID is required.");
 
-      if (isEventId) {
-        config
-          .newCheckbox()
-          .setId("includeFormDetails")
-          .setName("Include registration form details")
-          .setAllowOverride(true)
-          .setHelpText(
-            "If checked, registration form details will be included in the report. If unchecked, these fields will still be present in the report but attempting to access them will result in an error."
-          );
-      }
-
       config
         .newCheckbox()
         .setId("includeWaitlist")
@@ -397,7 +386,7 @@ function appendCustomFields(request, schema, filter) {
     token = getAccessToken(request.configParams.apikey);
   }
   var account = fetchAPI(API_PATHS.accounts, token)[0];
-  var shouldIncludeFormDetails = Boolean(request.configParams.includeFormDetails) === true;
+  var shouldIncludeFormDetails = request.configParams.eventRegistrationType === "eventRegistrationEventId";
   var contactfieldsEndpoint = API_PATHS.accounts + account.Id + "/contactfields?showSectionDividers=false";
   var customFieldsResponse = fetchAPI(contactfieldsEndpoint, token);
   var eventFields = [];
@@ -536,7 +525,7 @@ wa_connector.getSchema = function(request) {
 
   if (doesSchemaRequireCustomFields) {
     if (isEventRegistration) {
-      var shouldIncludeFormDetails = Boolean(request.configParams.includeFormDetails) === true;
+      var shouldIncludeFormDetails = request.configParams.eventRegistrationType === "eventRegistrationEventId";
 
       if (shouldIncludeFormDetails) {
         var shouldIncludeWaitlist = Boolean(request.configParams.includeWaitlist) === true;
@@ -1533,7 +1522,7 @@ wa_connector.getData = function(request) {
       }
     }
   } else if (request.configParams.resource === "eventRegistrations") {
-    var shouldIncludeFormDetails = Boolean(request.configParams.includeFormDetails) === true;
+    var shouldIncludeFormDetails = request.configParams.eventRegistrationType === "eventRegistrationEventId";
     var shouldIncludeWaitlist = Boolean(request.configParams.includeWaitlist) === true;
     var searchId = request.configParams.eventRegistrationSearch.toString().trim();
     var searchType = request.configParams.eventRegistrationType;
@@ -1610,35 +1599,20 @@ wa_connector.getData = function(request) {
             else row.push(eventRegistration.IsPaid);
             break;
           case "RegistrationDate":
-            if (shouldIncludeFormDetails) {
-              if (typeof eventRegistration.RegistrationDate === "undefined") row.push(null);
-              else row.push(parseDateTime(eventRegistration.RegistrationDate));
-            } else {
-              row.push(null);
-            }
+            if (typeof eventRegistration.RegistrationDate === "undefined") row.push(null);
+            else row.push(parseDateTime(eventRegistration.RegistrationDate));
             break;
           case "Memo":
-            if (shouldIncludeFormDetails) {
-              row.push(eventRegistration.Memo);
-            } else {
-              row.push(null);
-            }
+            if (typeof eventRegistration.Memo === "undefined") row.push(null);
+            else row.push(parseDateTime(eventRegistration.Memo));
             break;
           case "IsGuestRegistration":
-            if (shouldIncludeFormDetails) {
-              if (typeof eventRegistration.IsGuestRegistration === "undefined") row.push(null);
-              else row.push(eventRegistration.IsGuestRegistration);
-            } else {
-              row.push(null);
-            }
+            if (typeof eventRegistration.IsGuestRegistration === "undefined") row.push(null);
+            else row.push(eventRegistration.IsGuestRegistration);
             break;
           case "IsWaitlisted":
-            if (shouldIncludeFormDetails) {
-              if (typeof eventRegistration.OnWaitlist === "undefined") row.push(null);
-              else row.push(eventRegistration.OnWaitlist);
-            } else {
-              row.push(null);
-            }
+            if (typeof eventRegistration.OnWaitlist === "undefined") row.push(null);
+            else row.push(eventRegistration.OnWaitlist);
             break;
           default:
             if (shouldIncludeFormDetails) {
