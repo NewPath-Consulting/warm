@@ -350,6 +350,9 @@ wa_connector.getConfig = function(request) {
   var isDateRangeRequired =
     !isFirstRequest &&
     (configParams.resource === "auditLog" ||
+      configParams.resource === "custom" ||
+      configParams.resource === "eventRegistrations" ||
+      configParams.resource === "sentEmails" ||
       configParams.resource === "invoices" ||
       configParams.resource === "invoiceDetails" ||
       configParams.resource === "contacts" ||
@@ -464,7 +467,8 @@ function mapSchema(fieldType, fieldName) {
         dataType: "STRING",
         semantics: {
           conceptType: "DIMENSION",
-          semanticType: "YEAR_MONTH_DAY"
+          semanticGroup: "DATE_AND_TIME",
+          semanticType: "YEAR_MONTH_DAY_SECOND"
         }
       };
     case "ID":
@@ -1979,14 +1983,19 @@ function parseDateTime(datetime) {
   if (typeof datetime !== "string") {
     return null;
   }
-  var regex = new RegExp("([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})");
+  var regex = new RegExp("([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):?([0-9]{2})?");
   var result = regex.exec(datetime);
   var parsedDate = null;
 
   if (Array.isArray(result)) {
     parsedDate = "";
     for (var index = 1; index < result.length; index++) {
-      parsedDate += result[index];
+      if (typeof result[index] !== "undefined") {
+        parsedDate += result[index];
+      }
+    }
+    if (parsedDate.length < 14) {
+      parsedDate += "00";
     }
   }
   return parsedDate;

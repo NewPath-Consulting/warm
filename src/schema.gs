@@ -1308,7 +1308,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
@@ -1318,7 +1318,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
@@ -1406,7 +1406,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
