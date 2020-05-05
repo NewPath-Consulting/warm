@@ -1448,7 +1448,7 @@ wa_connector.getData = function(request) {
                 row.push(account.Id);
               } else {
                 var customField = fields[schemaField.name];
-                var value = getCustomFieldValue(schemaField.name, customField);
+                var value = getCustomFieldValue(customField);
                 row.push(value);
               }
             } else {
