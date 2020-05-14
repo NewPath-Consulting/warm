@@ -1633,6 +1633,10 @@ wa_connector.getData = function(request) {
               if (typeof payment.CreatedDate === "undefined") row.push(null);
               else row.push(parseDateTime(payment.CreatedDate));
               break;
+            case "DocumentDate":
+              if (typeof payment.DocumentDate === "undefined") row.push(null);
+              else row.push(parseDateTime(payment.DocumentDate));
+              break;
             case "UpdatedDate":
               if (typeof payment.UpdatedDate === "undefined") row.push(null);
               else row.push(parseDateTime(payment.UpdatedDate));
