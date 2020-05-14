@@ -1224,6 +1224,16 @@ var WASchema = {
       }
     },
     {
+      name: "DocumentDate",
+      label: "Document Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_SECOND"
+      }
+    },
+    {
       name: "UpdatedDate",
       label: "Payment Updated Date",
       dataType: "STRING",
