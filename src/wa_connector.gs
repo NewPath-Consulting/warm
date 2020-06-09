@@ -1884,7 +1884,7 @@ function fetchAPI(url, token) {
   try {
     var responseJSON = UrlFetchApp.fetch(url, {
       method: "GET",
-      headers: { Authorization: "Bearer " + token },
+      headers: { Authorization: "Bearer " + token, "User-Agent": "WARM / 2.1 (DEV) Wild Apricot Reports Manager" },
       accept: "application/json"
     });
     return JSON.parse(responseJSON);
