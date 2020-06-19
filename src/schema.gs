@@ -323,7 +323,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_SECOND"
+        semanticType: "YEAR_MONTH_DAY_HOUR"
       }
     },
     {
@@ -340,7 +340,7 @@ var WASchema = {
       dataType: "STRING",
       semantics: {
         conceptType: "DIMENSION",
-        semanticType: "YEAR_MONTH_DAY_SECOND"
+        semanticType: "YEAR_MONTH_DAY_HOUR"
       }
     },
     {
@@ -350,7 +350,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_SECOND"
+        semanticType: "YEAR_MONTH_DAY_HOUR"
       }
     },
     {
@@ -383,7 +383,7 @@ var WASchema = {
       dataType: "STRING",
       semantics: {
         conceptType: "DIMENSION",
-        semanticType: "YEAR_MONTH_DAY_SECOND"
+        semanticType: "YEAR_MONTH_DAY_HOUR"
       }
     },
     {
@@ -392,7 +392,7 @@ var WASchema = {
       dataType: "STRING",
       semantics: {
         conceptType: "DIMENSION",
-        semanticType: "YEAR_MONTH_DAY_SECOND"
+        semanticType: "YEAR_MONTH_DAY_HOUR"
       }
     },
     {
@@ -401,7 +401,7 @@ var WASchema = {
       dataType: "STRING",
       semantics: {
         conceptType: "DIMENSION",
-        semanticType: "YEAR_MONTH_DAY_SECOND"
+        semanticType: "YEAR_MONTH_DAY_HOUR"
       }
     },
     {
@@ -410,7 +410,7 @@ var WASchema = {
       dataType: "STRING",
       semantics: {
         conceptType: "DIMENSION",
-        semanticType: "YEAR_MONTH_DAY_SECOND"
+        semanticType: "YEAR_MONTH_DAY_HOUR"
       }
     },
     {
@@ -534,7 +534,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_SECOND"
+        semanticType: "YEAR_MONTH_DAY_HOUR"
       }
     },
     {
@@ -544,7 +544,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_SECOND"
+        semanticType: "YEAR_MONTH_DAY_HOUR"
       }
     },
     {
@@ -612,7 +612,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_SECOND"
+        semanticType: "YEAR_MONTH_DAY_HOUR"
       }
     },
     {
@@ -727,7 +727,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_SECOND"
+        semanticType: "YEAR_MONTH_DAY_HOUR"
       }
     },
     {
@@ -994,7 +994,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_SECOND"
+        semanticType: "YEAR_MONTH_DAY_HOUR"
       }
     },
     {
@@ -1162,14 +1162,6 @@ var WASchema = {
   ],
   payments: [
     {
-      name: "AccountIdMain",
-      label: "Account Id",
-      dataType: "NUMBER",
-      semantics: {
-        conceptType: "DIMENSION"
-      }
-    },
-    {
       name: "Id",
       label: "Payment ID",
       dataType: "NUMBER",
@@ -1220,7 +1212,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_SECOND"
+        semanticType: "YEAR_MONTH_DAY_HOUR"
       }
     },
     {
@@ -1240,7 +1232,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_SECOND"
+        semanticType: "YEAR_MONTH_DAY_HOUR"
       }
     },
     {
