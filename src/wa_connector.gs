@@ -104,6 +104,12 @@ wa_connector.getConfig = function(request) {
     .addOption(
       config
         .newOptionBuilder()
+        .setLabel("Invoice Details")
+        .setValue("invoiceDetails")
+    )
+    .addOption(
+      config
+        .newOptionBuilder()
         .setLabel("Sent emails")
         .setValue("sentEmails")
     )
@@ -120,7 +126,7 @@ wa_connector.getConfig = function(request) {
     .setText("Wild Apricot object is required.");
 
   var shouldShowContactFields = !isFirstRequest && (configParams.resource === "contacts" || configParams.resource === "custom");
-  var shouldShowInvoicesFields = !isFirstRequest && configParams.resource === "invoices";
+  var shouldShowInvoicesFields = !isFirstRequest && (configParams.resource === "invoices" || configParams.resource === "invoiceDetails");
   var shouldShowAuditLogFields = !isFirstRequest && configParams.resource === "auditLog";
   var shouldShowSentEmailsFields = !isFirstRequest && configParams.resource === "sentEmails";
   var shouldShowPaymentsFields = !isFirstRequest && configParams.resource === "payments";
@@ -267,8 +273,19 @@ wa_connector.getConfig = function(request) {
   var isPagingEmpty = isFirstRequest || configParams.Paging === undefined || configParams.Paging === null;
   var isDateRangeRequired =
     !isFirstRequest &&
-    (configParams.resource === "auditLog" || configParams.resource === "invoices" || configParams.resource === "contacts" || configParams.resource === "payments");
-  var canProceedToNextStep = !isApiKeyEmpty && !isResourceEmpty && (!shouldShowPageField || (shouldShowPageField && !isPagingEmpty));
+    (configParams.resource === "auditLog" ||
+      configParams.resource === "custom" ||
+      configParams.resource === "eventRegistrations" ||
+      configParams.resource === "sentEmails" ||
+      configParams.resource === "invoices" ||
+      configParams.resource === "invoiceDetails" ||
+      configParams.resource === "contacts" ||
+      configParams.resource === "payments");
+  var canProceedToNextStep =
+    !isApiKeyEmpty &&
+    !isResourceEmpty &&
+    (!shouldShowPageField || (shouldShowPageField && !isPagingEmpty)) &&
+    (!isEventRegistrationSearchRequired || (isEventRegistrationSearchRequired && !isEventRegistrationSearchEmpty));
 
   if (isDateRangeRequired) {
     config.setDateRangeRequired(true);
@@ -322,25 +339,28 @@ function map_schema(ft_in, fn_in) {
   var fn = format_field(fn_in); // format field name to meet GDS requirement
   switch (ft_in) {
     case "RulesAndTerms":
-      var f_set = {};
-      var semantics = {};
-      semantics["conceptType"] = "DIMENSION";
-      semantics["semanticType"] = "BOOLEAN";
-      f_set["semantics"] = semantics;
-      f_set["name"] = fn;
-      f_set["label"] = fn_in; //+ "---" + ft_in;
-      f_set["dataType"] = "BOOLEAN";
-      return f_set;
-    case "Date": // *****
-      var f_set = {};
-      var semantics = {};
-      semantics["conceptType"] = "DIMENSION";
-      semantics["semanticType"] = "YEAR_MONTH_DAY";
-      f_set["semantics"] = semantics;
-      f_set["name"] = fn;
-      f_set["label"] = fn_in; //+ "---" + ft_in;
-      f_set["dataType"] = "STRING";
-      return f_set;
+    case "Boolean":
+      return {
+        name: formattedFieldName,
+        label: fieldName,
+        dataType: "BOOLEAN",
+        semantics: {
+          conceptType: "DIMENSION",
+          semanticType: "BOOLEAN"
+        }
+      };
+    case "Date":
+    case "DateTime":
+      return {
+        name: formattedFieldName,
+        label: fieldName,
+        dataType: "STRING",
+        semantics: {
+          conceptType: "DIMENSION",
+          semanticGroup: "DATE_AND_TIME",
+          semanticType: "YEAR_MONTH_DAY_SECOND"
+        }
+      };
     case "ID":
     case "account_id":
     case "ExtraChargeCalculation":
@@ -405,21 +425,12 @@ wa_connector.getData = function(request) {
   if (!token) {
     token = _getAccessToken(request.configParams.apikey);
   }
-  var account = _fetchAPI(API_PATHS.accounts, token)[0];
-  if (request.configParams.resource == "custom") {
-    var contactfieldsEndpoint = API_PATHS.accounts + account.Id + "/contactfields?showSectionDividers=false";
-    var cfs = _fetchAPI(contactfieldsEndpoint, token);
-    cfs.forEach(function(cf) {
-      if (cf.SystemCode.substring(0, 7) == "custom-" || cf.SystemCode == "FirstName" || cf.SystemCode == "LastName") {
-        field_maps[format_field(cf.FieldName)] = cf.FieldType;
-      } else if (cf.SystemCode == "MemberId") {
-        field_maps[format_field(cf.FieldName)] = "ID1";
-      }
-    });
-    schema = custom(request);
-  }
-  var selectedDimensionsMetrics = _filterSelectedItems(schema, request.fields);
-  //  Logger.log(selectedDimensionsMetrics);
+
+  var rows = [];
+  var schema = wa_connector.getSchema(request).schema;
+  var account = fetchAPI(API_PATHS.accounts, token)[0];
+  var selectedDimensionsMetrics = filterSelectedItems(schema, request.fields);
+
   if (request.configParams.resource == "account") {
     //ACCOUNT
     var row = [];
@@ -1102,7 +1113,130 @@ wa_connector.getData = function(request) {
         break;
       }
     }
+  } else if (request.configParams.resource == "invoiceDetails") {
+    var skip = 0,
+      count = 0,
+      invoiceIds = [];
+
+    while (true) {
+      var accountsEndpoint =
+        API_PATHS.accounts +
+        account.Id +
+        "/invoices?unpaidOnly=false&idsOnly=true&StartDate=" +
+        request.dateRange.startDate +
+        "&EndDate=" +
+        request.dateRange.endDate +
+        "&includeVoided=" +
+        (request.configParams.includeVoided ? "true" : "false") +
+        "&$skip=" +
+        skip +
+        "&$top=" +
+        request.configParams.Paging;
+      var invoiceIdsResponse = fetchAPI(accountsEndpoint, token);
+      invoiceIds = invoiceIds.concat(invoiceIdsResponse.InvoiceIdentifiers);
+
+      skip += Number(request.configParams.Paging);
+      if (invoiceIdsResponse.InvoiceIdentifiers.length < Number(request.configParams.Paging)) {
+        break;
+      }
+    }
+
+    invoiceIds.map(function(id) {
+      var endpoint = API_PATHS.accounts + account.Id + "/invoices/" + id;
+      var invoice = fetchAPI(endpoint, token);
+      var eventId = null;
+
+      if (invoice.OrderType === "EventRegistration" && "EventRegistration" in invoice) {
+        var eventRegistrationEndpoint = API_PATHS.accounts + account.Id + "/eventregistrations/" + invoice.EventRegistration.Id;
+        var eventRegistration = fetchAPI(eventRegistrationEndpoint, token);
+        eventId = eventRegistration.Event.Id;
+      }
+
+      invoice.OrderDetails.forEach(function(orderDetails) {
+        var row = [];
+        selectedDimensionsMetrics.forEach(function(field) {
+          switch (field.name) {
+            case "AccountIdMain4":
+              row.push(invoice.Id);
+              break;
+            case "Id":
+              if (typeof invoice.DocumentNumber === "undefined") row.push(null);
+              else row.push(invoice.DocumentNumber);
+              break;
+            case "Url":
+              if (typeof invoice.Url === "undefined") row.push(null);
+              else row.push(invoice.Url);
+              break;
+            case "IsPaid":
+              row.push(invoice.IsPaid);
+              break;
+            case "PaidAmount":
+              if (typeof invoice.PaidAmount === "undefined" || !invoice.PaidAmount) row.push(null);
+              else row.push(invoice.PaidAmount);
+              break;
+            case "ContactId":
+              if (typeof invoice.Contact === "undefined") row.push(null);
+              else row.push(invoice.Contact.Id);
+              break;
+            case "CreatedDate":
+              if (typeof invoice.CreatedDate === "undefined") row.push(null);
+              else row.push(parseDateTime(invoice.CreatedDate));
+              break;
+            case "OrderType":
+              row.push(invoice.OrderType);
+              break;
+            case "PublicMemo":
+              row.push(convertToNullString(invoice.PublicMemo));
+              break;
+            case "Memo":
+              row.push(convertToNullString(invoice.Memo));
+              break;
+            case "ContactName":
+              row.push(invoice.Contact.Name);
+              break;
+            case "Value":
+              row.push(invoice.Value);
+              break;
+            case "OrderDetailType":
+              row.push(orderDetails.OrderDetailType);
+              break;
+            case "OrderValue":
+              row.push(orderDetails.Value);
+              break;
+            case "OrderNote":
+              row.push(orderDetails.Notes);
+              break;
+            case "OrderTaxAmount":
+              row.push(orderDetails.Taxes === null ? null : orderDetails.Taxes.Amount);
+              break;
+            case "OrderTax1":
+              row.push(orderDetails.Taxes === null ? null : orderDetails.Taxes.CalculatedTax1);
+              break;
+            case "OrderTax2":
+              row.push(orderDetails.Taxes === null ? null : orderDetails.Taxes.CalculatedTax2);
+              break;
+            case "OrderNetTax":
+              row.push(orderDetails.Taxes === null ? null : orderDetails.Taxes.NetAmount);
+              break;
+            case "OrderRoundedNetTax":
+              row.push(orderDetails.Taxes === null ? null : orderDetails.Taxes.RoundedAmount);
+              break;
+            case "EventId":
+              row.push(eventId);
+              break;
+            case "VoidedDate":
+              var date = "VoidedDate" in orderDetails ? parseDateTime(orderDetails.VoidedDate) : null;
+              row.push(date);
+              break;
+            default:
+          }
+        });
+
+        rows.push({ values: row });
+      });
+    });
   } else if (request.configParams.resource == "custom") {
+    var userFilter = typeof request.configParams.filter === "string" ? request.configParams.filter : "";
     var skip = 0,
       count = 0;
     while (true) {
@@ -1114,56 +1248,74 @@ wa_connector.getData = function(request) {
         }
         filter += "Member eq true";
       }
+      if (filter.length > 0 && userFilter.length > 0) {
+        filter += " AND ";
+      }
+      filter += userFilter;
 
       var membersEndpoint =
         API_PATHS.accounts +
         account.Id +
-        "/Contacts?$async=false&" +
+        "/Contacts?$async=false&$filter=" +
         filter +
-        "&$skip=" +
-        skip.toString() +
-        "&$top=" +
-        request.configParams.Paging;
-      var members = _fetchAPI(membersEndpoint, token); // returns object that contains data from the API call
-      var n = members.Contacts.length;
+        (request.configParams.countOnly ? "" : "&$skip=" + skip.toString()) +
+        (request.configParams.countOnly ? "" : "&$top=" + request.configParams.Paging) +
+        (request.configParams.countOnly ? "&$count=true" : "");
+
+      var members = fetchAPI(membersEndpoint, token); // returns object that contains data from the API call
+      var n = request.configParams.countOnly ? 1 : members.Contacts.length;
       count += 1;
-      console.log(count + " " + n);
-      members.Contacts.forEach(function(member) {
-        var row = [],
-          field_names = []; // formatted field names
-        field_names.push("AccountId");
-        for (var i = 0; i < member.FieldValues.length; i++) {
-          field_names.push(format_field(member.FieldValues[i].FieldName));
-        }
-        //            console.log(field_names);
 
-        for (var i = 0; i < selectedDimensionsMetrics.length; i++) {
-          if (field_names.indexOf(selectedDimensionsMetrics[i].name) <= -1) {
-            row.push(null);
-          } else if (selectedDimensionsMetrics[i].name == "AccountId") {
-            row.push(account.Id);
-          } else {
-            for (var j = 0; j < member.FieldValues.length; j++) {
-              if (format_field(member.FieldValues[j].FieldName) == selectedDimensionsMetrics[i].name) {
-                //                    console.log("field type:", field_maps[format_field(member.FieldValues[j].FieldName)])
-                //                    console.log("field name type:", member.FieldValues[j].FieldName);
-                //                    console.log(map_val(field_maps[format_field(member.FieldValues[j].FieldName)], member,j));
-                if (format_field(member.FieldValues[j].FieldName) == "UserID") {
-                  console.log("field type:", field_maps[format_field(member.FieldValues[j].FieldName)]);
-                }
-                row.push(map_val(field_maps[format_field(member.FieldValues[j].FieldName)], member, j));
-                break;
-              }
-            }
+      if (request.configParams.countOnly) {
+        var row = [];
+        selectedDimensionsMetrics.forEach(function(field) {
+          switch (field.name) {
+            case "Count":
+              row.push(members.Count);
+              break;
+            default:
+              row.push(null);
+              break;
           }
-        }
-        rows.push({ values: row });
-      }); // Since we are iterating, then every possible field for the endpoint will be pushed to row list.
-
-      skip += Number(request.configParams.Paging);
-      if (n < Number(request.configParams.Paging)) {
+        });
+        rows.push({ values: row }); // final response
         break;
-      } // exit when reached the end
+      } else {
+        members.Contacts.forEach(function(member) {
+          var row = [];
+          var fields = {
+            AccountId: {}
+          };
+
+          member.FieldValues.forEach(function(field) {
+            var fieldName = formatField(field.FieldName);
+            fields[fieldName] = field;
+          });
+
+          selectedDimensionsMetrics.forEach(function(schemaField) {
+            var doesFieldExist = schemaField.name in fields;
+
+            if (doesFieldExist) {
+              if (schemaField.name === "AccountId") {
+                row.push(account.Id);
+              } else {
+                var customField = fields[schemaField.name];
+                var value = getCustomFieldValue(customField);
+                row.push(value);
+              }
+            } else {
+              row.push(null);
+            }
+          });
+
+          rows.push({ values: row });
+        });
+
+        skip += Number(request.configParams.Paging);
+        if (n < Number(request.configParams.Paging)) {
+          break;
+        } // exit when reached the end
+      }
       console.log("Number of apis used: " + count);
     }
   } else if (request.configParams.resource == "sentEmails") {
@@ -1318,6 +1470,10 @@ wa_connector.getData = function(request) {
               if (typeof payment.CreatedDate === "undefined") row.push(null);
               else row.push(payment.CreatedDate);
               break;
+            case "DocumentDate":
+              if (typeof payment.DocumentDate === "undefined") row.push(null);
+              else row.push(parseDateTime(payment.DocumentDate));
+              break;
             case "UpdatedDate":
               if (typeof payment.UpdatedDate === "undefined") row.push(null);
               else row.push(payment.UpdatedDate);
@@ -1464,7 +1620,7 @@ function _fetchAPI(url, token) {
   try {
     var requestParams = {
       method: "GET",
-      headers: { Authorization: "Bearer " + token },
+      headers: { Authorization: "Bearer " + token, "User-Agent": "WARM / 2.1 (DEV) Wild Apricot Reports Manager" },
       accept: "application/json"
     };
 
@@ -1556,6 +1712,36 @@ function setCredentials(request) {
 
 function isAdminUser() {
   return true;
+}
+
+function isDateTime(date) {
+  if (typeof date !== "string") {
+    return false;
+  }
+  var regex = date.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$/g);
+  return !!(regex && regex.length > 0);
+}
+
+function parseDateTime(datetime) {
+  if (typeof datetime !== "string") {
+    return null;
+  }
+  var regex = new RegExp("([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):?([0-9]{2})?");
+  var result = regex.exec(datetime);
+  var parsedDate = null;
+
+  if (Array.isArray(result)) {
+    parsedDate = "";
+    for (var index = 1; index < result.length; index++) {
+      if (typeof result[index] !== "undefined") {
+        parsedDate += result[index];
+      }
+    }
+    if (parsedDate.length < 14) {
+      parsedDate += "00";
+    }
+  }
+  return parsedDate;
 }
 
 ////////////////////////////////////////////////////////////////////////

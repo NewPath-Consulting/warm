@@ -48,7 +48,16 @@ var WASchema = {
       }
     }
   ],
-  // previously members
+  custom: [
+    {
+      name: "Count",
+      label: "Count",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    }
+  ],
   contacts: [
     {
       name: "MemberId",
@@ -772,6 +781,194 @@ var WASchema = {
       }
     }
   ],
+  invoiceDetails: [
+    {
+      name: "AccountIdMain4",
+      label: "Account ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Id",
+      label: "Invoice Number",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Url",
+      label: "Invoice Url",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "TEXT"
+      }
+    },
+    {
+      name: "IsPaid",
+      label: "Paid",
+      dataType: "BOOLEAN",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "BOOLEAN"
+      }
+    },
+    {
+      name: "PaidAmount",
+      label: "Paid Amount",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "METRIC",
+        semanticGroup: "CURRENCY",
+        semanticType: "CURRENCY_CAD"
+      }
+    },
+    {
+      name: "ContactId",
+      label: "User Id",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "CreatedDate",
+      label: "Invoice Created Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_SECOND"
+      }
+    },
+    {
+      name: "OrderType",
+      label: "Origin",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "PublicMemo",
+      label: "Comments for payer",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Memo",
+      label: "Internal notes",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "ContactName",
+      label: "Invoiced to",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Value",
+      label: "Total Amount",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "METRIC",
+        semanticGroup: "CURRENCY",
+        semanticType: "CURRENCY_CAD"
+      }
+    },
+    {
+      name: "EventId",
+      label: "Event ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderDetailType",
+      label: "Order Detail Type",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderValue",
+      label: "Order Value",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderNote",
+      label: "Order Note",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderTaxAmount",
+      label: "Order Tax Amount",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderTax1",
+      label: "Order Tax 1",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderTax2",
+      label: "Order Tax 2",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderNetTax",
+      label: "Order Net Tax",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "OrderRoundedNetTax",
+      label: "Order Rounded Net Tax",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "VoidedDate",
+      label: "Invoice Voided Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_SECOND"
+      }
+    }
+  ],
   sentEmails: [
     {
       name: "Id",
@@ -1019,6 +1216,16 @@ var WASchema = {
       }
     },
     {
+      name: "DocumentDate",
+      label: "Document Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_SECOND"
+      }
+    },
+    {
       name: "UpdatedDate",
       label: "Payment Updated Date",
       dataType: "STRING",
@@ -1076,6 +1283,158 @@ var WASchema = {
       dataType: "NUMBER",
       semantics: {
         conceptType: "DIMENSION"
+      }
+    }
+  ],
+  eventRegistrations: [
+    {
+      name: "Id",
+      label: "Event ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "EventName",
+      label: "Event Name",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "StartDate",
+      label: "Event Start Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_SECOND"
+      }
+    },
+    {
+      name: "EndDate",
+      label: "Event End Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_SECOND"
+      }
+    },
+    {
+      name: "Location",
+      label: "Event Location",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "RegistrantName",
+      label: "Registrant Name",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "RegistrationType",
+      label: "Registration Type",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "RegistrationId",
+      label: "Registration ID",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "Organization",
+      label: "Organization",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "IsCheckedIn",
+      label: "Registrant Checked In",
+      dataType: "BOOLEAN",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "BOOLEAN"
+      }
+    },
+    {
+      name: "RegistrationFee",
+      label: "Registration Fee",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "METRIC",
+        semanticGroup: "CURRENCY",
+        semanticType: "CURRENCY_CAD"
+      }
+    },
+    {
+      name: "PaidAmount",
+      label: "Paid Amount",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "METRIC",
+        semanticGroup: "CURRENCY",
+        semanticType: "CURRENCY_CAD"
+      }
+    },
+    {
+      name: "IsRegistrationPaid",
+      label: "Registration Paid",
+      dataType: "BOOLEAN",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "BOOLEAN"
+      }
+    },
+    {
+      name: "RegistrationDate",
+      label: "Registration Date",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticGroup: "DATE_AND_TIME",
+        semanticType: "YEAR_MONTH_DAY_SECOND"
+      }
+    },
+    {
+      name: "Memo",
+      label: "Memo",
+      dataType: "STRING",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
+      name: "IsGuestRegistration",
+      label: "Is Guest Registration",
+      dataType: "BOOLEAN",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "BOOLEAN"
+      }
+    },
+    {
+      name: "IsWaitlisted",
+      label: "Is Waitlisted",
+      dataType: "BOOLEAN",
+      semantics: {
+        conceptType: "DIMENSION",
+        semanticType: "BOOLEAN"
       }
     }
   ]

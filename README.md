@@ -14,15 +14,17 @@ The code is maintained by [NewPath Consulting](https://www.newpathconsulting.com
 # Features
 This community data connector is written in JavaScript and supports the following Wild Apricot data objects.
 
-* [Account](https://gethelp.wildapricot.com/en/articles/506-accounts-admin-api-call)
-* [Contacts](https://gethelp.wildapricot.com/en/articles/502-contacts-admin-api-call)
-* [Contact custom fields](https://gethelp.wildapricot.com/en/articles/503-contactfields-admin-api-call)
-* [Membership Levels](https://gethelp.wildapricot.com/en/articles/496-membershiplevels-admin-api-call)
-* [Events](https://gethelp.wildapricot.com/en/articles/499-events-admin-api-call)
-* [Invoices](https://gethelp.wildapricot.com/en/articles/498-invoices-admin-api-call)
-* [Payments](https://gethelp.wildapricot.com/en/articles/494-payments-admin-api-call)
-* [Sent emails](https://gethelp.wildapricot.com/en/articles/1606-sentemails-admin-api-call)
-* [Auditlog](https://gethelp.wildapricot.com/en/articles/505-auditlogitems-admin-api-call)
+- [Account](https://gethelp.wildapricot.com/en/articles/506-accounts-admin-api-call)
+- [Contacts](https://gethelp.wildapricot.com/en/articles/502-contacts-admin-api-call)
+- [Contact custom fields](https://gethelp.wildapricot.com/en/articles/503-contactfields-admin-api-call)
+- [Membership Levels](https://gethelp.wildapricot.com/en/articles/496-membershiplevels-admin-api-call)
+- [Events](https://gethelp.wildapricot.com/en/articles/499-events-admin-api-call)
+- [Event Registrations](https://gethelp.wildapricot.com/en/articles/501-eventregistrations-admin-api-call)
+- [Invoices](https://gethelp.wildapricot.com/en/articles/498-invoices-admin-api-call)
+- [Invoice Details](https://gethelp.wildapricot.com/en/articles/498-invoices-admin-api-call)
+- [Payments](https://gethelp.wildapricot.com/en/articles/494-payments-admin-api-call)
+- [Sent emails](https://gethelp.wildapricot.com/en/articles/1606-sentemails-admin-api-call)
+- [Auditlog](https://gethelp.wildapricot.com/en/articles/505-auditlogitems-admin-api-call)
 
 # Installation
 
@@ -70,12 +72,21 @@ Dashboards can be customized flexibly according to a report writers requirements
 
  [Wild Apricot API Documentation](https://gethelp.wildapricot.com/en/articles/182-using-wild-apricots-api)
 
- [Wild Apricot Product Description](https://www.wildapricot.com/membership-management-software)
- 
+[GDS Community Connector Docs](https://developers.google.com/datastudio/connector)
+
+[GDS GitHub Repositories and Experiments](https://github.com/googledatastudio)
+
+[Wild Apricot API Documentation](https://gethelp.wildapricot.com/en/articles/182-using-wild-apricots-api)
+
+[Wild Apricot Product Description](https://www.wildapricot.com/membership-management-software)
+
+[Extract data for faster performance in Google Data Studio](https://support.google.com/datastudio/answer/9019969?hl=en)
+
 # Changelog
 
-* v1.0 August 6 2019 - updated the INVOICES, EVENTS and MEMBERS endpoint to support a lot more information (custom fields not yet supported), support Stackdriver logging and global variable to turn off logging, regression tested auditlog and accounts. Added access to Membership Levels . 
-*  v1.1 September 10 2019 - added AccountID to every endpoint to track which Wild Apricot account (eg site) is providing the data. Updated connector manifest file to include the necessary data for publication into partner directory
-* v1.1.1 September 13 2019 - added a new config parameter collection screen with API key validation and step-by-step collection of config parameters depending on the end point being used
-* v1.2 September 27 2019 - removed auditlog/invoice config parameters in favour of GDS built in date filter control, added error handling to the getData() call, enabled API key override at the report level, added Account Name dimension to Account endpoint, added Auditlog timestamp to auditlog endpoint, modified schema for members end point to make sure balances are in CAD currency and are a METRIC rather than DIMENSION, Google Partner Connector submitted and approved
-* v2.0.0 March 31 2020 - added support for accessing Contact custom fields, Sent Emails, Payments. Added ability to access "pages" of records for Contacts and Contact custom fields, Events, Sent Emails, Invoices, Payments and AuditLog. Contacts can also have an API-level filter applied as well as return just a count of records rather than the full record set. On Contacts and Contact custom fields configuration supports returning only members or to include archived records. Invoices and Sent emails have filters that can be applied as well.
+- v1.0 August 6 2019 - updated the INVOICES, EVENTS and MEMBERS endpoint to support a lot more information (custom fields not yet supported), support Stackdriver logging and global variable to turn off logging, regression tested auditlog and accounts. Added access to Membership Levels .
+- v1.1 September 10 2019 - added AccountID to every endpoint to track which Wild Apricot account (eg site) is providing the data. Updated connector manifest file to include the necessary data for publication into partner directory
+- v1.1.1 September 13 2019 - added a new config parameter collection screen with API key validation and step-by-step collection of config parameters depending on the end point being used
+- v1.2 September 27 2019 - removed auditlog/invoice config parameters in favour of GDS built in date filter control, added error handling to the getData() call, enabled API key override at the report level, added Account Name dimension to Account endpoint, added Auditlog timestamp to auditlog endpoint, modified schema for members end point to make sure balances are in CAD currency and are a METRIC rather than DIMENSION, Google Partner Connector submitted and approved
+- v2.0 March 31 2020 - added support for accessing Contact custom fields, Sent Emails, Payments. Added ability to access "pages" of records for Contacts and Contact custom fields, Events, Sent Emails, Invoices, Payments and AuditLog. Contacts can also have an API-level filter applied as well as return just a count of records rather than the full record set. On Contacts and Contact custom fields configuration supports returning only members or to include archived records. Invoices and Sent emails have filters that can be applied as well.
+- v2.1 June 19 2020 - added support for Event Registrations and Invoice Details, updated the date field format in all objects to support granularity/show as date display, added User-Agent string to the fetchAPI call to identify WARM calls to Wild Apricot API service ("User-Agent: WARM / 2.1 (xxx) Wild Apricot Reports Manager" where xxx is either PROD, UAT, DEV depending on the version of WARM being used)
