@@ -15,16 +15,20 @@ The code is maintained by [NewPath Consulting](https://www.newpathconsulting.com
 This community data connector is written in JavaScript and supports the following Wild Apricot data objects.
 
 - [Account](https://gethelp.wildapricot.com/en/articles/506-accounts-admin-api-call)
+
 - [Contacts](https://gethelp.wildapricot.com/en/articles/502-contacts-admin-api-call)
 - [Contact custom fields](https://gethelp.wildapricot.com/en/articles/503-contactfields-admin-api-call)
 - [Membership Levels](https://gethelp.wildapricot.com/en/articles/496-membershiplevels-admin-api-call)
+
 - [Events](https://gethelp.wildapricot.com/en/articles/499-events-admin-api-call)
 - [Event Registrations](https://gethelp.wildapricot.com/en/articles/501-eventregistrations-admin-api-call)
+
 - [Invoices](https://gethelp.wildapricot.com/en/articles/498-invoices-admin-api-call)
 - [Invoice Details](https://gethelp.wildapricot.com/en/articles/498-invoices-admin-api-call)
 - [Payments](https://gethelp.wildapricot.com/en/articles/494-payments-admin-api-call)
-- [Sent emails](https://gethelp.wildapricot.com/en/articles/1606-sentemails-admin-api-call)
 - [Auditlog](https://gethelp.wildapricot.com/en/articles/505-auditlogitems-admin-api-call)
+
+- [Sent emails](https://gethelp.wildapricot.com/en/articles/1606-sentemails-admin-api-call)
 
 # Installation
 
