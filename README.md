@@ -1,6 +1,5 @@
-# Documentation
+# Documentation for Pro Reports for Wild Apricot
 
-![WARM logo](images/warm-logo.png)
 
 # Project Description
 Wild Apricot is the #1 rated Membership Management platform that enables membership-based organizations to manage their contact database and all members transactions with ease. The system has many modules including events, membership renewals, donations and an online store. It also enables administrators to customize their contact and member database. Members and administrators are able to manipulate data such as membership status, event registration, online payments with ease.
