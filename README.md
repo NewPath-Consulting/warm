@@ -62,7 +62,10 @@ After the data source is configured you will be asked for a [Wild Apricot API ke
     [guide on Community Connector Developer site](https://developers.google.com/datastudio/connector/use).
   
 # Sample Dashboard (Google Data Studio)
-[Sample Wild Apricot Report in PDF](https://github.com/asirota/gds-wildapricot-connector/blob/master/images/Simple%20Wild%20Apricot%20Report%20in%20Google%20Data%20Studio.pdf)
+
+[Built in Contact Report Template](https://github.com/NewPath-Consulting/warm/blob/master/images/%5BTEMPLATE%5D_Simple_Wild_Apricot_Membership_Report.pdf)
+
+[Custom Sample Wild Apricot Report in PDF](https://github.com/asirota/gds-wildapricot-connector/blob/master/images/Simple%20Wild%20Apricot%20Report%20in%20Google%20Data%20Studio.pdf)
 
 [Sample Wild Apricot Report in Google Data Studio (live)](https://datastudio.google.com/s/ia1L-H14C4U)
 
