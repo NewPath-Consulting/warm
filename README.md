@@ -40,7 +40,7 @@ This is a community connector. This connector has been published as a Partner co
 
 To use the connector you can perform one of 2 procedures:
 
-* Create your own Wild Apricot data source with [this connector link](https://datastudio.google.com/datasources/create?connectorId=AKfycbzCDTl62VlYZZd5NIqQ1RFmeUdG71a004N5dGqDyAORuZCQLkcSY2Ygsp4tGgEAbR4W)
+* Create your own Wild Apricot data source with [this private production connector link](https://datastudio.google.com/datasources/create?connectorId=AKfycbzCDTl62VlYZZd5NIqQ1RFmeUdG71a004N5dGqDyAORuZCQLkcSY2Ygsp4tGgEAbR4W)
 
 or
 
@@ -48,6 +48,7 @@ or
 
 After the data source is configured you will be asked for a [Wild Apricot API key](https://gethelp.wildapricot.com/en/articles/484). API keys can be created in the Wild Apricot administrative system under [Settings/Integrations/Authorized Applications](https://gethelp.wildapricot.com/en/articles/180)
 
+[Development data source link](https://datastudio.google.com/datasources/create?connectorId=AKfycbwsqpvkpqamHvwTzcdSCVsuNxT2tPdvTK6GKZ2Ikk3wF3Uy9bPIBvSR4fZzh2yW3LQh)
 ## Edit and Use your own copy of the Wild Apricot Reports Manager
 
 1.  Visit [Google Apps Script](https://script.google.com/) and create a new
