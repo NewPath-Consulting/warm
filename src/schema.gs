@@ -1,6 +1,6 @@
 // ------------------------------------------------------------------------------------------------------------------
 // Google Data Studio Community Data Connector for Wild Apricot
-// Copyright (c) 2018-20 NewPath Consulting Inc.
+// Copyright (c) 2018-22 NewPath Consulting Inc.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -323,7 +323,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
@@ -340,7 +340,7 @@ var WASchema = {
       dataType: "STRING",
       semantics: {
         conceptType: "DIMENSION",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
@@ -350,7 +350,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
@@ -383,7 +383,7 @@ var WASchema = {
       dataType: "STRING",
       semantics: {
         conceptType: "DIMENSION",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
@@ -392,7 +392,7 @@ var WASchema = {
       dataType: "STRING",
       semantics: {
         conceptType: "DIMENSION",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
@@ -401,7 +401,7 @@ var WASchema = {
       dataType: "STRING",
       semantics: {
         conceptType: "DIMENSION",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
@@ -410,7 +410,7 @@ var WASchema = {
       dataType: "STRING",
       semantics: {
         conceptType: "DIMENSION",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
@@ -534,7 +534,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
@@ -544,7 +544,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
@@ -612,7 +612,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
@@ -727,7 +727,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
@@ -994,7 +994,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
@@ -1162,6 +1162,14 @@ var WASchema = {
   ],
   payments: [
     {
+      name: "AccountIdMain",
+      label: "Account Id",
+      dataType: "NUMBER",
+      semantics: {
+        conceptType: "DIMENSION"
+      }
+    },
+    {
       name: "Id",
       label: "Payment ID",
       dataType: "NUMBER",
@@ -1212,7 +1220,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
@@ -1232,7 +1240,7 @@ var WASchema = {
       semantics: {
         conceptType: "DIMENSION",
         semanticGroup: "DATE_AND_TIME",
-        semanticType: "YEAR_MONTH_DAY_HOUR"
+        semanticType: "YEAR_MONTH_DAY_SECOND"
       }
     },
     {
