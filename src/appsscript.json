@@ -1,28 +1,35 @@
 {
   "timeZone": "America/Toronto",
-  "dependencies": {},
-  "webapp": {
-    "access": "ANYONE",
-    "executeAs": "USER_ACCESSING"
-  },
-  "urlFetchWhitelist": ["https://api.wildapricot.org/", "https://oauth.wildapricot.org/", "https://newpathconsulting.com/"],
   "runtimeVersion": "V8",
+  "webapp": {
+    "executeAs": "USER_ACCESSING",
+    "access": "ANYONE"
+  },
   "dataStudio": {
-    "name": "Wild Apricot Reports Manager",
-    "logoUrl": "http://www.newpathconsulting.com/images/logo.png",
+    "name": "Pro Reports for Wild Apricot",
+    "logoUrl": "https://newpathconsulting.com/wp-content/uploads/job-manager-uploads/company_logo/2020/03/99044-newpath-logo-07A-rgb-072.png",
     "company": "NewPath Consulting Inc.",
-    "companyUrl": "http://www.newpathconsulting.com",
-    "addonUrl": "http://www.newpathconsulting.com/warm",
-    "supportUrl": "https://www.newpathconsulting.com/contact-us.html",
-    "description": "v2.0 - The Wild Apricot Reports Manager (aka WARM) is NewPath\u0027s custom reporting solution for Wild Apricot administrators who want an increased level of reporting flexibility and analytical power.",
-    "sources": ["WILD_APRICOT"],
+    "companyUrl": "https://newpathconsulting.com",
+    "addonUrl": "https://newpathconsulting.com/warm",
+    "supportUrl": "https://talk.newpathconsulting.com/c/wa-discuss/warm/8",
+    "description": "Pro Reports for Wild Apricot (aka WARM) is a custom connector for Personify Wild Apricot customers who need reporting flexibility and analytical power.",
+    "sources": [
+      "WILD_APRICOT"
+    ],
     "templates": {
       "default": "1AvG9S97XRA7fE9QIaVAtMZ3QQG511wq6"
     },
-    "shortDescription": "v2.0 - Create custom reports and visualizations with your Wild Apricot site or network of sites.",
-    "authType": ["KEY"],
-    "feeType": ["FREE_TRIAL"],
-    "privacyPolicyUrl": "https://www.newpathconsulting.com/privacy.html",
-    "termsOfServiceUrl": "https://github.com/asirota/gds-wildapricot-connector/blob/master/TERMS-OF-SERVICE.md"
-  }
+    "shortDescription": "DEV - Create custom reports and visualizations with your Wild Apricot site or network of sites.",
+    "authType": [
+      "KEY"
+    ],
+    "feeType": [
+      "FREE_TRIAL"
+    ],
+    "privacyPolicyUrl": "https://newpathconsulting.com/privacy-policy",
+    "termsOfServiceUrl": "https://github.com/NewPath-Consulting/warm/blob/master/TERMS-OF-SERVICE.md"
+  },
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/script.external_request"
+  ]
 }
