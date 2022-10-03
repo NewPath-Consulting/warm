@@ -36,7 +36,7 @@ Email Marketing
 
 # Installation
 
-This is a community connector. This connector has been published as a Partner connector in the [GDS connector repository](https://datastudio.google.com/data?search=wild%20apricot).
+This is a community connector. When you purchase a license you will receive the link to the connector in your email with the Pro Reports license.
 
 To use the connector you can perform one of 2 procedures:
 
@@ -48,17 +48,17 @@ or
 
 After the data source is configured you will be asked for a [Wild Apricot API key](https://gethelp.wildapricot.com/en/articles/484). API keys can be created in the Wild Apricot administrative system under [Settings/Integrations/Authorized Applications](https://gethelp.wildapricot.com/en/articles/180)
 
-## Edit and Use your own copy of the Wild Apricot Reports Manager
+## Edit and Use your own copy of the Pro Reports
 
 1.  Visit [Google Apps Script](https://script.google.com/) and create a new
     project.
-1.  In the Apps Script development environment, select **View > Show manifest
+2.  In the Apps Script development environment, select **View > Show manifest
     file**. Replace the contents of this file with the content of the
     `src/appsscript.json` file from this repository.
-1.  For every `.js` file under `src`, you will need to create a file in Apps
+3.  For every `.js` file under `src`, you will need to create a file in Apps
     Scripts (**File > New > Script File**), then copy over the content from the
     repository.
-1.  To use the Community Connector in Data Studio, follow the
+4.  To use the Community Connector in Data Studio, follow the
     [guide on Community Connector Developer site](https://developers.google.com/datastudio/connector/use).
   
 # Sample Dashboard (Google Data Studio)
