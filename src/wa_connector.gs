@@ -1114,8 +1114,7 @@ wa_connector.getData = function(request) {
       }
     }
   } else if (request.configParams.resource == "invoiceDetails") {
-    var skip = 0,
-      count = 0,
+    var count = 0,
       invoiceIds = [];
 
     while (true) {
@@ -1127,15 +1126,10 @@ wa_connector.getData = function(request) {
         "&EndDate=" +
         request.dateRange.endDate +
         "&includeVoided=" +
-        (request.configParams.includeVoided ? "true" : "false") +
-        "&$skip=" +
-        skip +
-        "&$top=" +
-        request.configParams.Paging;
+        (request.configParams.includeVoided ? "true" : "false");
       var invoiceIdsResponse = fetchAPI(accountsEndpoint, token);
       invoiceIds = invoiceIds.concat(invoiceIdsResponse.InvoiceIdentifiers);
 
-      skip += Number(request.configParams.Paging);
       if (invoiceIdsResponse.InvoiceIdentifiers.length < Number(request.configParams.Paging)) {
         break;
       }
